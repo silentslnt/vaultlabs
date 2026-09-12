@@ -98,6 +98,13 @@ sb.auth.getSession().then(({ data: { session } }) => {
   if (session) window.location.href = '../toolkit.html';
 });
 
+// Auto-fill key from claim page
+const urlKey = new URLSearchParams(window.location.search).get('key');
+if (urlKey) {
+  const keyField = document.getElementById('license-key');
+  if (keyField) keyField.value = urlKey.toUpperCase();
+}
+
 function showError(msg) {
   const el = document.getElementById('error-msg');
   el.textContent = msg;

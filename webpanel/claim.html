@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultLabs — Get Your Access Key</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:#0c0c0c;color:#efefef;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+a{color:#3b82f6;text-decoration:none}a:hover{color:#5b9ef9}
+.logo{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:32px;text-align:center}
+.logo span{color:#3b82f6}
+.card{width:100%;max-width:440px;background:#131313;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:32px}
+.card h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.card p{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px}
+input{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 14px;font-size:14px;font-family:inherit;color:#efefef;outline:none;transition:border-color .15s}
+input:focus{border-color:rgba(59,130,246,.5)}
+input::placeholder{color:rgba(255,255,255,.2)}
+.btn{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn:hover{background:#5b9ef9}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:16px;display:none}
+
+/* Key reveal box */
+.key-box{display:none;margin-top:0}
+.key-box-inner{background:#0c0c0c;border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:24px;text-align:center;margin-bottom:20px}
+.key-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.key-value{font-family:'Courier New',monospace;font-size:22px;font-weight:700;letter-spacing:.1em;color:#60a5fa;margin-bottom:16px;word-break:break-all}
+.copy-btn{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);color:#60a5fa;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.copy-btn:hover{background:rgba(59,130,246,.2)}
+.copy-btn.copied{color:#4ade80;border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.08)}
+.key-note{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px;line-height:1.5}
+.key-note.used{color:rgba(250,204,21,.6)}
+.register-btn{display:block;width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;text-decoration:none;transition:all .15s}
+.register-btn:hover{background:#5b9ef9;color:#fff}
+.divider{height:1px;background:rgba(255,255,255,.06);margin:20px 0}
+.login-link{text-align:center;font-size:13px;color:rgba(255,255,255,.4)}
+.login-link a{color:rgba(255,255,255,.55)}
+.login-link a:hover{color:#efefef}
+</style>
+</head>
+<body>
+<a href="../index.html" class="logo">Vault<span>Labs</span></a>
+
+<div class="card" id="lookup-card">
+  <h1>Get your access key</h1>
+  <p>Enter the email you used to purchase VaultLabs. Your license key will appear instantly.</p>
+  <div class="error" id="error-msg"></div>
+  <div class="field">
+    <label>Purchase email</label>
+    <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+  </div>
+  <button class="btn" id="btn" onclick="claimKey()">Reveal my key</button>
+</div>
+
+<div class="card key-box" id="key-card">
+  <h1 style="margin-bottom:6px">Your license key</h1>
+  <p style="margin-bottom:24px">Copy your key, then create your account below to unlock the full course.</p>
+  <div class="key-box-inner">
+    <div class="key-label">License Key</div>
+    <div class="key-value" id="key-display"></div>
+    <button class="copy-btn" id="copy-btn" onclick="copyKey()">Copy key</button>
+  </div>
+  <p class="key-note" id="key-note">This key is single-use. It will be marked as used when you complete registration.</p>
+  <a href="register.html" class="register-btn" id="register-link">Create your account →</a>
+  <div class="divider"></div>
+  <p class="login-link">Already registered? <a href="login.html">Log in →</a></p>
+</div>
+
+<script>
+let foundKey = '';
+
+async function claimKey() {
+  const email = document.getElementById('email').value.trim();
+  const btn = document.getElementById('btn');
+  const errEl = document.getElementById('error-msg');
+
+  errEl.style.display = 'none';
+  if (!email) { errEl.textContent = 'Enter your email.'; errEl.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Looking up...';
+
+  try {
+    const res = await fetch('/api/claim-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      errEl.textContent = data.error || 'Something went wrong.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Reveal my key';
+      return;
+    }
+
+    foundKey = data.key;
+    document.getElementById('key-display').textContent = foundKey;
+
+    // Pre-fill register page link with key
+    const registerLink = document.getElementById('register-link');
+    registerLink.href = `register.html?key=${encodeURIComponent(foundKey)}`;
+
+    if (data.used) {
+      document.getElementById('key-note').textContent = 'This key has already been used to create an account. Log in below if that was you.';
+      document.getElementById('key-note').classList.add('used');
+    }
+
+    document.getElementById('lookup-card').style.display = 'none';
+    document.getElementById('key-card').style.display = 'block';
+
+  } catch (err) {
+    errEl.textContent = 'Network error — try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Reveal my key';
+  }
+}
+
+function copyKey() {
+  if (!foundKey) return;
+  navigator.clipboard.writeText(foundKey).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy key'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') claimKey(); });
+</script>
+</body>
+</html>

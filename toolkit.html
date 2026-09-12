@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="assets/media/layout/vaultlabsfavicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<!-- Auth gate -->
+<!-- Auth -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
@@ -15,13 +15,21 @@
     'https://qmoudajzycshbssdlczg.supabase.co',
     'sb_publishable_TACZIaiyoxdTGv4QVoKPRg_Sax_NNAc'
   );
+  // Don't redirect — allow preview. Just track session state.
   sb.auth.getSession().then(({ data: { session } }) => {
-    if (!session) window.location.href = '/webpanel/login.html';
+    window._vlLoggedIn = !!session;
+    if (session) {
+      const b = document.getElementById('preview-banner');
+      if (b) b.style.display = 'none';
+      document.getElementById('member-badge').style.display = 'flex';
+      document.getElementById('topbar-login').style.display = 'none';
+      document.getElementById('topbar-signout').style.display = 'inline-block';
+      document.getElementById('topbar-cta-buy').style.display = 'none';
+    }
   });
-  // Expose signOut globally for the topbar button
   window._sbSignOut = async () => {
     await sb.auth.signOut();
-    window.location.href = '/webpanel/login.html';
+    window.location.reload();
   };
 })();
 </script>
@@ -176,11 +184,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   <div class="topbar-sep"></div>
   <a href="index.html" class="topbar-logo">Vault<span>Labs</span></a>
   <span class="topbar-page">/ Toolkit</span>
-  <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="topbar-cta">Get Full Access — $179</a>
-  <button onclick="window._sbSignOut()" style="margin-left:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.color='#efefef'" onmouseout="this.style.color='rgba(255,255,255,.5)'">Sign out</button>
+  <span id="member-badge" style="display:none;margin-left:auto;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:5px 10px;border-radius:6px;letter-spacing:.04em">MEMBER</span>
+  <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="topbar-cta" id="topbar-cta-buy">Get Full Access — $179</a>
+  <a href="/webpanel/login.html" id="topbar-login" style="margin-left:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);padding:6px 10px;border-radius:7px;transition:all .15s" onmouseover="this.style.color='#efefef'" onmouseout="this.style.color='rgba(255,255,255,.5)'">Log in</a>
+  <button id="topbar-signout" onclick="window._sbSignOut()" style="display:none;margin-left:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.color='#efefef'" onmouseout="this.style.color='rgba(255,255,255,.5)'">Sign out</button>
 </header>
 
-<div class="layout">
+<!-- Preview banner for non-members -->
+<div id="preview-banner" style="background:linear-gradient(90deg,rgba(59,130,246,.12),rgba(59,130,246,.06));border-bottom:1px solid rgba(59,130,246,.2);padding:10px 24px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:rgba(255,255,255,.7);position:fixed;top:52px;left:0;right:0;z-index:200">
+  <span>You're viewing a preview — module content and downloads unlock after purchase.</span>
+  <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" style="color:#60a5fa;font-weight:700;white-space:nowrap">Get Full Access — $179 →</a>
+  <span style="color:rgba(255,255,255,.35)">or</span>
+  <a href="/webpanel/login.html" style="color:rgba(255,255,255,.55);font-weight:600;white-space:nowrap">Log in →</a>
+</div>
+
+<div class="layout" id="main-layout" style="padding-top:calc(52px + 41px)">
   <aside class="sidebar">
     <div class="sidebar-scroll">
       <span class="sidebar-label">Full Course</span>
@@ -271,7 +289,7 @@ points:['Local GPU vs cloud — when each makes sense','Minimum specs for runnin
 steps:[
 {n:'1',t:'Check your local hardware',note:'Windows: Open Task Manager → Performance → GPU. Mac: About This Mac → Graphics. Check your GPU model and VRAM. If under 8GB VRAM, cloud is your best path.'},
 {n:'2',t:'Understand the cost breakdown',note:'Image generation: RTX 4090 at ~$0.44/hr. LoRA training: 1–2 hours on A100 at ~$1.99/hr. Most active creators spend $20–50/month total on cloud.'},
-{n:'3',t:'Create a RunPod account',note:'Go to runpod.io — create an account, add $20 credit to start. That\'s enough for full setup and your first character generation session.'}
+{n:'3',t:'Create a RunPod account',note:'Go to <a href="https://runpod.io?ref=2n2itn2n" target="_blank" style="color:#60a5fa">runpod.io</a> (use this link — supports the channel) → create an account, add $20 credit to start. That\'s enough for full setup and your first character generation session.'}
 ],dl:[],
 chapters:[{t:'Local vs cloud — the honest answer',d:'01:30'},{t:'RunPod GPU options explained',d:'01:30'},{t:'Estimated cost per task',d:'01:20'}]},
 
@@ -279,7 +297,7 @@ chapters:[{t:'Local vs cloud — the honest answer',d:'01:30'},{t:'RunPod GPU op
 desc:'Step by step: creating a RunPod pod correctly, attaching a network volume for persistent model storage, and understanding the folder structure so nothing gets lost between sessions.',
 points:['What a network volume is and why you must use one','Creating your first pod — which template to pick','Attaching the network volume BEFORE first launch','SSH access and the web terminal','The /workspace/ folder structure fully explained','How to stop and restart without losing data','Mistakes that waste money or wipe your files'],
 steps:[
-{n:'1',t:'Create your Network Volume first',note:'RunPod Dashboard → Storage → Network Volumes → Create. Name: "comfyui-models". Size: 100GB minimum. Pick the same datacenter region you\'ll run pods in. This is where your models live permanently.'},
+{n:'1',t:'Create your Network Volume first',note:'Sign up at <a href="https://runpod.io?ref=2n2itn2n" target="_blank" style="color:#60a5fa">runpod.io</a> if you haven\'t yet. Then: Dashboard → Storage → Network Volumes → Create. Name: "comfyui-models". Size: 100GB minimum. Pick the same datacenter region you\'ll run pods in. This is where your models live permanently.'},
 {n:'2',t:'Create your pod',note:'Pods → Deploy → Search for "runpod-slim" template. Select RTX 4090 (best price/performance for image gen). BEFORE hitting Deploy: scroll down and attach your Network Volume.'},
 {n:'3',t:'Set container disk size',note:'Set Container Disk to at least 50GB. The network volume stores models. The container disk stores ComfyUI itself and your generated outputs.'},
 {n:'4',t:'Deploy and connect',note:'Click Deploy. Pod takes 1–3 minutes to start. Click Connect → Web Terminal (or Jupyter) to open a browser-based terminal into the pod.'},
@@ -423,7 +441,7 @@ chapters:[{t:'Prompt structure walkthrough',d:'01:30'},{t:'Negative prompt templ
 
 {num:'13',title:'MiniMax Motion Control (Video)',dur:'06:46',cat:'Video',
 desc:'Turning your still images into video using MiniMax — the strongest model for realistic motion in AI influencer content. Covers the workflow, motion prompting, and getting consistent results.',
-points:['Why MiniMax produces the most realistic motion for this use case','Image-to-video vs text-to-video — which to use and when','Loading and understanding the MiniMax workflow','Writing motion prompts that actually direct movement','Camera movement control: zoom, pan, dolly, handheld feel','Clip length and frame rate for social media formats','Fixing motion artifacts and unstable clips','Exporting for TikTok, Reels, and Fanvue'],
+points:['Why MiniMax produces the most realistic motion for this use case','Image-to-video vs text-to-video — which to use and when','Loading and understanding the MiniMax workflow','Writing motion prompts that actually direct movement','Camera movement control: zoom, pan, dolly, handheld feel','Clip length and frame rate for social media formats','Fixing motion artifacts and unstable clips','Exporting for TikTok, Reels, and Stacked'],
 steps:[
 {n:'1',t:'Load the MiniMax workflow',note:'Load minimax-motion.json in ComfyUI. The workflow takes a still image as input and generates a 5–10 second video clip. Connect your enhanced image from Module 11 to the input.'},
 {n:'2',t:'Prepare your input image',note:'Use a clean, enhanced image — 1024x1024 or 1024x1536 works best. The better the input quality, the better the motion output. Don\'t use raw ComfyUI outputs without enhancement first.'},
@@ -450,10 +468,10 @@ chapters:[{t:'SCAIL-2 vs MiniMax: when to use each',d:'01:30'},{t:'LTX director 
 
 {num:'15',title:'Content Strategy &amp; Posting SOP',dur:'05:44',cat:'Strategy',
 desc:'The exact content strategy for growing AI influencer accounts — posting frequency, platform breakdown, format guide for each platform, and a repeatable SOP that keeps it consistent without hours of daily work.',
-points:['Platform breakdown: TikTok, Instagram, Fanvue, OnlyFans','Minimum posting frequency to stay in the algorithm','Content ratio: lifestyle vs premium (by platform)','Using a content calendar to batch 7 days in one session','Caption and hashtag formula for each platform','Comment response SOP — how often, what to say','Repurposing one video across multiple platforms efficiently','When to post and when not to'],
+points:['Platform breakdown: TikTok, Instagram, Stacked, OnlyFans','Minimum posting frequency to stay in the algorithm','Content ratio: lifestyle vs premium (by platform)','Using a content calendar to batch 7 days in one session','Caption and hashtag formula for each platform','Comment response SOP — how often, what to say','Repurposing one video across multiple platforms efficiently','When to post and when not to'],
 steps:[
-{n:'1',t:'Set your posting schedule',note:'Minimum for algorithm growth:\n  TikTok: 1 video/day\n  Instagram Reels: 1 video/day\n  Fanvue/OF: 3–5 posts/week (mix of photos and short clips)\n\nBatch-create 7 days of content in a single 2–3 hour ComfyUI session.'},
-{n:'2',t:'Know the format per platform',note:'TikTok + Reels: 9:16 vertical, 15–45 seconds, strong visual hook in first 2 seconds.\nFanvue/OF: mix of square and portrait photos + short clips. More relaxed, lifestyle-heavy feed.'},
+{n:'1',t:'Set your posting schedule',note:'Minimum for algorithm growth:\n  TikTok: 1 video/day\n  Instagram Reels: 1 video/day\n  Stacked/OF: 3–5 posts/week (mix of photos and short clips)\n\nBatch-create 7 days of content in a single 2–3 hour ComfyUI session.'},
+{n:'2',t:'Know the format per platform',note:'TikTok + Reels: 9:16 vertical, 15–45 seconds, strong visual hook in first 2 seconds.\nStacked/OF: mix of square and portrait photos + short clips. More relaxed, lifestyle-heavy feed.'},
 {n:'3',t:'The caption formula',note:'Line 1: Hook (stop the scroll — make a statement or ask a question)\nLine 2–3: 1–2 sentences max. Conversational, not robotic.\nLine 4: Soft CTA — "link in bio 🔗" or "you know where to find me"\nHashtags: 3–5 niche tags only (not 30 generic ones)'},
 {n:'4',t:'Batching workflow',note:'One session produces a week of content:\n  1. Generate 20–30 images → enhance all\n  2. Generate 7–10 video clips\n  3. Write captions for all posts in one sitting\n  4. Schedule using Buffer, Later, or Creator Studio\n  5. Done — don\'t touch it until next session'},
 {tip:'Accounts that post every day for 30 straight days see the biggest algorithmic push. Don\'t post twice one day then skip two days. Consistent beats viral.'}
@@ -461,17 +479,17 @@ steps:[
 chapters:[{t:'Platform breakdown & where to focus',d:'01:30'},{t:'Posting schedule & frequency',d:'01:14'},{t:'Caption & hashtag strategy',d:'01:30'},{t:'Batching content efficiently',d:'01:30'}]},
 
 {num:'16',title:'Monetization Setup',dur:'04:50',cat:'Strategy',
-desc:'How to actually make money with the system — setting up Fanvue, connecting your free platforms to drive traffic to paid, and the pricing and content structure that converts followers into subscribers.',
-points:['Fanvue vs OnlyFans — why Fanvue is the better starting point in 2024','Setting up your Fanvue page: profile, bio, pricing, and first posts','Subscription pricing that converts: what to charge as a starter','Content tiers: free feed, subscription, PPV (pay-per-view)','Connecting TikTok and Instagram to drive Fanvue traffic','Link-in-bio setup that maximizes conversion','First 30 days: what to focus on and what to ignore','Scaling: adding more characters or expanding to new platforms'],
+desc:'How to actually make money with the system — setting up Stacked, connecting your free platforms to drive traffic to paid, and the pricing and content structure that converts followers into subscribers.',
+points:['Stacked vs OnlyFans — why Stacked is the better starting point','Setting up your Stacked page: profile, bio, pricing, and first posts','Subscription pricing that converts: what to charge as a starter','Content tiers: free feed, subscription, PPV (pay-per-view)','Connecting TikTok and Instagram to drive Stacked traffic','Link-in-bio setup that maximizes conversion','First 30 days: what to focus on and what to ignore','Scaling: adding more characters or expanding to new platforms'],
 steps:[
-{n:'1',t:'Create your Fanvue page',note:'Go to fanvue.com → Create Creator Account. Use your character\'s persona name. Upload a clean (non-explicit) profile photo and a high-quality banner image. Write a bio that creates curiosity without being flagged.'},
+{n:'1',t:'Create your Stacked page',note:'Go to stacked.com → Create Creator Account. Use your character\'s persona name. Upload a clean (non-explicit) profile photo and a high-quality banner image. Write a bio that creates curiosity without being flagged.'},
 {n:'2',t:'Set your subscription price',note:'Start at $9.99/month. This is the proven conversion sweet spot — low enough that the decision is easy, high enough to generate real income at volume. Increase to $14.99 after hitting 50+ subscribers.'},
-{n:'3',t:'Set up your link-in-bio',note:'Use Linktree (free) or Stan.store. Primary link: your Fanvue. Secondary: Discord invite (builds community). On TikTok and Instagram, your bio should just say your character\'s name + the link. Nothing else.'},
-{n:'4',t:'The first 30-day push',note:'Post every single day. Reply to every comment (even just an emoji). Follow back active accounts. DM new followers with a short message. Don\'t obsess over follower count — obsess over Fanvue link clicks.'},
-{n:'5',t:'Income math',note:'100 Fanvue subscribers × $9.99 = ~$999/month recurring.\n200 subscribers = ~$2,000/month.\nAdd PPV sales on top.\n\nMost consistent accounts hit 100 subscribers within 60–90 days of daily posting. That\'s your first goal.'},
-{tip:'Post a free teaser to Fanvue itself too — the algorithm surfaces free content to non-subscribers. It\'s your best conversion tool on the platform itself, not just TikTok/IG.'}
+{n:'3',t:'Set up your link-in-bio',note:'Use Linktree (free) or Stan.store. Primary link: your Stacked page. Secondary: Discord invite (builds community). On TikTok and Instagram, your bio should just say your character\'s name + the link. Nothing else.'},
+{n:'4',t:'The first 30-day push',note:'Post every single day. Reply to every comment (even just an emoji). Follow back active accounts. DM new followers with a short message. Don\'t obsess over follower count — obsess over Stacked link clicks.'},
+{n:'5',t:'Income math',note:'100 Stacked subscribers × $9.99 = ~$999/month recurring.\n200 subscribers = ~$2,000/month.\nAdd PPV sales on top.\n\nMost consistent accounts hit 100 subscribers within 60–90 days of daily posting. That\'s your first goal.'},
+{tip:'Post a free teaser to Stacked itself too — the algorithm surfaces free content to non-subscribers. It\'s your best conversion tool on the platform itself, not just TikTok/IG.'}
 ],dl:[{l:'Monetization Setup Guide (.pdf)',h:'https://whop.com/vaultlabs/full-system-00/'}],
-chapters:[{t:'Fanvue setup walkthrough',d:'01:30'},{t:'Subscription pricing strategy',d:'01:00'},{t:'Traffic from free platforms',d:'01:20'},{t:'First 30-day game plan',d:'01:00'}]}
+chapters:[{t:'Stacked setup walkthrough',d:'01:30'},{t:'Subscription pricing strategy',d:'01:00'},{t:'Traffic from free platforms',d:'01:20'},{t:'First 30-day game plan',d:'01:00'}]}
 ];
 
 function buildSteps(steps){
