@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultLabs — Reset Password</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:#0c0c0c;color:#efefef;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+a{color:#3b82f6;text-decoration:none}a:hover{color:#5b9ef9}
+.logo{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:32px;text-align:center}
+.logo span{color:#3b82f6}
+.card{width:100%;max-width:400px;background:#131313;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:32px}
+.card h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.card p{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px}
+input{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 14px;font-size:14px;font-family:inherit;color:#efefef;outline:none;transition:border-color .15s}
+input:focus{border-color:rgba(59,130,246,.5)}
+input::placeholder{color:rgba(255,255,255,.2)}
+.btn{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn:hover{background:#5b9ef9}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:16px;display:none}
+.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#4ade80;margin-bottom:16px;display:none}
+.back{margin-top:20px;text-align:center;font-size:13px}
+.back a{color:rgba(255,255,255,.45)}
+.back a:hover{color:#efefef}
+</style>
+</head>
+<body>
+<a href="../index.html" class="logo">Vault<span>Labs</span></a>
+<div class="card">
+  <h1>Reset password</h1>
+  <p>Enter your email and we'll send a reset link. Check your inbox after submitting.</p>
+  <div class="error" id="error-msg"></div>
+  <div class="success" id="success-msg"></div>
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+  </div>
+  <button class="btn" id="btn" onclick="doReset()">Send reset link</button>
+  <div class="back"><a href="login.html">← Back to login</a></div>
+</div>
+<script>
+const SUPABASE_URL = 'https://qmoudajzycshbssdlczg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TACZIaiyoxdTGv4QVoKPRg_Sax_NNAc';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function doReset() {
+  const email = document.getElementById('email').value.trim();
+  const btn = document.getElementById('btn');
+  if (!email) { document.getElementById('error-msg').textContent='Enter your email.'; document.getElementById('error-msg').style.display='block'; return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/webpanel/reset-confirm.html'
+  });
+  if (error) {
+    document.getElementById('error-msg').textContent = error.message;
+    document.getElementById('error-msg').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Send reset link';
+  } else {
+    document.getElementById('success-msg').textContent = 'Reset link sent! Check your inbox (and spam folder).';
+    document.getElementById('success-msg').style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
+  }
+}
+document.addEventListener('keydown', e => { if(e.key==='Enter') doReset(); });
+</script>
+</body>
+</html>

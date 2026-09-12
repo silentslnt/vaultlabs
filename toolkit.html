@@ -3,529 +3,513 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VaultLabs Toolkit</title>
+<title>VaultLabs — Toolkit</title>
 <link rel="icon" type="image/png" href="assets/media/layout/vaultlabsfavicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Auth gate -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const sb = supabase.createClient(
+    'https://qmoudajzycshbssdlczg.supabase.co',
+    'sb_publishable_TACZIaiyoxdTGv4QVoKPRg_Sax_NNAc'
+  );
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (!session) window.location.href = '/webpanel/login.html';
+  });
+  // Expose signOut globally for the topbar button
+  window._sbSignOut = async () => {
+    await sb.auth.signOut();
+    window.location.href = '/webpanel/login.html';
+  };
+})();
+</script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{font-family:'Inter',sans-serif;background:#fff;color:#0a0a0a;overflow-x:hidden}
-
 :root{
-  --blue:#3b82f6;
-  --blue-dim:rgba(59,130,246,0.1);
-  --blue-border:rgba(59,130,246,0.25);
-  --muted:rgba(0,0,0,.45);
-  --border:rgba(0,0,0,.09);
-  --card:#f5f5f5;
-  --sidebar-w:260px;
+  --bg:#0c0c0c;--surface:#131313;--surface-2:#1a1a1a;--surface-3:#222222;
+  --border:rgba(255,255,255,.07);--border-blue:rgba(59,130,246,.3);
+  --blue:#3b82f6;--blue-hover:#5b9ef9;--blue-dim:rgba(59,130,246,.12);
+  --text:#efefef;--text-2:rgba(255,255,255,.55);--text-3:rgba(255,255,255,.3);
+  --green:#22c55e;--amber:#f59e0b;
+  --sidebar-w:256px;--topbar-h:52px;--radius:10px;
+  --t:all .18s cubic-bezier(.4,0,.2,1);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
-/* ── TOPBAR ── */
-.topbar{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  height:56px;
-  background:rgba(255,255,255,.95);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 24px;gap:20px;
-}
-.topbar-logo{font-size:16px;font-weight:800;color:#0a0a0a;text-decoration:none}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--topbar-h);background:rgba(12,12,12,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px}
+.topbar-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-2);padding:6px 10px 6px 0;transition:var(--t)}
+.topbar-back:hover{color:var(--text)}
+.topbar-sep{width:1px;height:16px;background:var(--border);margin:0 16px}
+.topbar-logo{font-size:15px;font-weight:800;letter-spacing:-.02em}
 .topbar-logo span{color:var(--blue)}
-.topbar-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .2s}
-.topbar-back:hover{color:#0a0a0a}
-.topbar-divider{width:1px;height:18px;background:var(--border)}
-.topbar-title{font-size:13px;font-weight:600;color:#0a0a0a}
-.topbar-cta{margin-left:auto;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:background .2s}
-.topbar-cta:hover{background:#2563eb}
+.topbar-page{font-size:13px;font-weight:500;color:var(--text-3);margin-left:10px}
+.topbar-cta{margin-left:auto;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;transition:var(--t);white-space:nowrap}
+.topbar-cta:hover{background:var(--blue-hover);transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,.35)}
 
-/* ── LAYOUT ── */
-.toolkit-layout{
-  display:flex;
-  padding-top:56px;
-  min-height:100vh;
-}
+.layout{display:flex;padding-top:var(--topbar-h);min-height:100vh}
 
-/* ── SIDEBAR ── */
-.sidebar{
-  width:var(--sidebar-w);
-  flex-shrink:0;
-  border-right:1px solid var(--border);
-  position:fixed;
-  top:56px;bottom:0;left:0;
-  overflow-y:auto;
-  background:#fff;
-  padding:20px 0;
-  scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent;
-}
-.sidebar-section{padding:0 16px;margin-bottom:4px}
-.sidebar-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 8px 6px;display:block}
-.module-btn{
-  display:flex;align-items:center;gap:10px;
-  width:100%;padding:9px 10px;
-  border:none;background:transparent;cursor:pointer;
-  border-radius:8px;text-align:left;
-  transition:background .15s;
-  font-family:'Inter',sans-serif;
-}
-.module-btn:hover{background:rgba(0,0,0,.04)}
-.module-btn.active{background:var(--blue-dim);color:var(--blue)}
-.module-btn.active .mod-num{color:var(--blue)}
-.module-btn.active .mod-title{color:var(--blue);font-weight:700}
-.mod-num{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.05em;min-width:22px}
-.mod-title{font-size:13px;font-weight:500;color:#0a0a0a;line-height:1.3;flex:1}
-.mod-dur{font-size:10px;color:var(--muted);font-weight:600;background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:var(--topbar-h);bottom:0;left:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:10px 8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.06) transparent}
+.sidebar-scroll::-webkit-scrollbar{width:3px}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);padding:8px 8px 5px;display:block}
 
-.sidebar-downloads{padding:16px;border-top:1px solid var(--border);margin-top:8px}
-.sidebar-downloads p{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.mod-btn{width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;transition:var(--t);text-align:left;border:1px solid transparent}
+.mod-btn:hover{background:var(--surface-2)}
+.mod-btn.active{background:var(--blue-dim);border-color:var(--border-blue)}
+.mod-btn.active .mod-n{color:var(--blue)}
+.mod-btn.active .mod-t{color:var(--text);font-weight:600}
+.mod-n{font-size:10px;font-weight:700;color:var(--text-3);min-width:18px;letter-spacing:.04em;flex-shrink:0}
+.mod-t{font-size:12px;font-weight:500;color:var(--text-2);flex:1;line-height:1.3}
+.mod-d{font-size:10px;font-weight:600;color:var(--text-3);background:var(--surface-3);padding:2px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
 
-/* ── MAIN CONTENT ── */
-.main-content{
-  margin-left:var(--sidebar-w);
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
+.sidebar-footer{padding:10px 8px;border-top:1px solid var(--border);flex-shrink:0}
+.sidebar-footer-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);padding:0 8px;margin-bottom:6px;display:block}
+.dl-side-btn{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--text-2);transition:var(--t);margin-bottom:2px}
+.dl-side-btn:hover{background:var(--surface-2);color:var(--text)}
+.dl-side-btn.primary{background:var(--blue);color:#fff;margin-top:4px}
+.dl-side-btn.primary:hover{background:var(--blue-hover)}
+.dl-side-btn svg{flex-shrink:0;opacity:.65}
+.dl-side-btn.primary svg{opacity:1}
 
-.content-area{
-  flex:1;
-  display:grid;
-  grid-template-columns:1fr 300px;
-  gap:0;
-  border-left:1px solid var(--border);
-}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:calc(100vh - var(--topbar-h))}
+.content-row{flex:1;display:grid;grid-template-columns:1fr 268px}
 
-/* ── VIDEO / LESSON ── */
-.lesson-panel{
-  padding:36px 40px;
-  border-right:1px solid var(--border);
-}
-.lesson-breadcrumb{font-size:11px;color:var(--muted);margin-bottom:16px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.lesson-title{font-size:24px;font-weight:800;letter-spacing:-.02em;color:#0a0a0a;margin-bottom:8px;line-height:1.2}
-.lesson-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.lesson-meta span{font-size:12px;color:var(--muted);font-weight:500}
-.lesson-meta .dur-badge{background:rgba(0,0,0,.06);padding:3px 8px;border-radius:4px;font-weight:700}
+.lesson{padding:32px 36px;border-right:1px solid var(--border)}
+.lesson-bc{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px}
 
-/* Video player area */
-.video-wrap{
-  width:100%;
-  aspect-ratio:16/9;
-  background:#0a0a0a;
-  border-radius:14px;
-  overflow:hidden;
-  position:relative;
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:28px;
-  border:1px solid var(--border);
-}
-.video-lock{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:16px;text-align:center;padding:32px;
-}
-.lock-icon{font-size:36px;opacity:.6}
-.video-lock h3{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em}
-.video-lock p{font-size:14px;color:rgba(255,255,255,.5);max-width:320px;line-height:1.6}
-.video-lock .unlock-btn{
-  background:var(--blue);color:#fff;
-  font-size:14px;font-weight:700;
-  padding:12px 28px;border-radius:9px;
-  text-decoration:none;margin-top:4px;
-  transition:background .2s;display:inline-block;
-}
-.video-lock .unlock-btn:hover{background:#2563eb}
+.cat-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:5px;margin-right:4px}
+.cat-intro{background:rgba(255,255,255,.06);color:var(--text-2);border:1px solid var(--border)}
+.cat-setup{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.cat-training{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.2)}
+.cat-image{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.cat-video{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.cat-strategy{background:rgba(236,72,153,.12);color:#f472b6;border:1px solid rgba(236,72,153,.2)}
+.cat-prompts{background:rgba(20,184,166,.12);color:#2dd4bf;border:1px solid rgba(20,184,166,.2)}
 
-/* lesson description */
-.lesson-desc{font-size:14px;color:rgba(0,0,0,.65);line-height:1.7;margin-bottom:24px}
-.lesson-what{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:20px 24px;margin-bottom:24px;
-}
-.lesson-what h4{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-.lesson-what ul{list-style:none}
-.lesson-what li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#0a0a0a;padding:5px 0;line-height:1.4}
-.lesson-what li::before{content:'✓';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
+.lesson-title{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--text);line-height:1.2;margin-bottom:10px}
+.lesson-meta{display:flex;align-items:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.meta-pill{font-size:11px;font-weight:600;color:var(--text-3);background:var(--surface-2);border:1px solid var(--border);padding:3px 8px;border-radius:5px}
 
-/* Downloads row */
-.downloads-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-.dl-btn{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--card);border:1px solid var(--border);
-  color:#0a0a0a;font-size:13px;font-weight:600;
-  padding:9px 16px;border-radius:8px;text-decoration:none;
-  transition:all .2s;
-}
-.dl-btn:hover{border-color:rgba(59,130,246,.4);background:var(--blue-dim);color:var(--blue)}
-.dl-btn.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
-.dl-btn svg{flex-shrink:0}
+.video-wrap{width:100%;aspect-ratio:16/9;background:var(--surface-2);border-radius:var(--radius);overflow:hidden;position:relative;border:1px solid var(--border);margin-bottom:28px}
+.video-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:32px;background:radial-gradient(ellipse at 50% 60%,rgba(59,130,246,.07) 0%,transparent 70%)}
+.lock-icon{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.video-lock h3{font-size:16px;font-weight:700;color:var(--text)}
+.video-lock p{font-size:13px;color:var(--text-2);max-width:280px;line-height:1.6}
+.unlock-btn{display:inline-flex;align-items:center;gap:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:8px;transition:var(--t);margin-top:2px}
+.unlock-btn:hover{background:var(--blue-hover);transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,130,246,.4)}
 
-/* ── CHAPTER LIST (right rail) ── */
-.chapter-rail{
-  padding:28px 20px;
-  overflow-y:auto;
-  max-height:calc(100vh - 56px);
-  position:sticky;top:0;
-}
-.chapter-rail h4{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
-.chapter-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:10px 12px;border-radius:8px;margin-bottom:2px;
-  cursor:pointer;transition:background .15s;
-}
-.chapter-item:hover{background:rgba(0,0,0,.04)}
-.chapter-item.active-ch{background:var(--blue-dim)}
-.ch-num{font-size:11px;font-weight:700;color:var(--muted);min-width:20px;margin-top:1px}
-.ch-title{font-size:13px;color:#0a0a0a;font-weight:500;line-height:1.35;flex:1}
-.ch-dur{font-size:11px;color:var(--muted);margin-top:2px;display:block}
-.chapter-item.active-ch .ch-title{color:var(--blue);font-weight:700}
-.chapter-item.active-ch .ch-num{color:var(--blue)}
+.lesson-desc{font-size:14px;color:var(--text-2);line-height:1.8;margin-bottom:22px}
+.what-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:22px}
+.what-box h4{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
+.what-box ul{list-style:none}
+.what-box li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text-2);padding:3.5px 0;line-height:1.45}
+.what-box li svg{flex-shrink:0;margin-top:3px;color:var(--blue)}
 
-/* ── PRODUCT CARDS SECTION ── */
-.products-bar{
-  padding:24px 40px;
-  border-top:1px solid var(--border);
-  background:#fafafa;
-  display:flex;gap:16px;flex-wrap:wrap;align-items:center;
-}
-.products-bar p{font-size:13px;color:var(--muted);font-weight:600;margin-right:8px;white-space:nowrap}
-.prod-pill{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#fff;border:1px solid var(--border);
-  color:#0a0a0a;font-size:13px;font-weight:600;
-  padding:8px 16px;border-radius:9px;text-decoration:none;
-  transition:all .2s;white-space:nowrap;
-}
-.prod-pill:hover{border-color:rgba(59,130,246,.4);color:var(--blue)}
-.prod-pill .price{color:var(--blue);font-weight:800}
+.step-section{margin-bottom:22px}
+.step-section h4{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
+.step-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:6px}
+.step-head{display:flex;align-items:center;gap:10px;padding:11px 14px}
+.step-num{width:22px;height:22px;border-radius:6px;background:var(--blue-dim);border:1px solid var(--border-blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--blue);flex-shrink:0}
+.step-head span{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.step-note{font-size:12.5px;color:var(--text-2);padding:0 14px 12px 46px;line-height:1.65}
+.code-box{background:#0a0a0a;border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:12px 14px;font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;color:#a5f3a0;overflow-x:auto;margin:8px 0 8px 46px;line-height:1.7;white-space:pre}
+.tip-box{display:flex;gap:10px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.15);border-radius:8px;padding:12px 14px;margin:8px 0}
+.tip-box svg{flex-shrink:0;margin-top:1px;color:var(--green)}
+.tip-box p{font-size:12.5px;color:var(--text-2);line-height:1.55}
+.warn-box{display:flex;gap:10px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);border-radius:8px;padding:12px 14px;margin:8px 0}
+.warn-box svg{flex-shrink:0;margin-top:1px;color:var(--amber)}
+.warn-box p{font-size:12.5px;color:var(--text-2);line-height:1.55}
+.video-todo{background:var(--surface-2);border:1px dashed rgba(255,255,255,.12);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin:10px 0}
+.video-todo svg{flex-shrink:0;color:var(--text-3)}
+.video-todo p{font-size:12px;color:var(--text-3);line-height:1.4}
 
-@media(max-width:900px){
-  .sidebar{display:none}
-  .main-content{margin-left:0}
-  .content-area{grid-template-columns:1fr}
-  .chapter-rail{display:none}
-  .lesson-panel{padding:24px 20px}
-  .products-bar{padding:20px}
+.dl-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+.dl-row{display:flex;flex-wrap:wrap;gap:7px}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:600;padding:7px 13px;border-radius:8px;transition:var(--t)}
+.dl-btn:hover{border-color:var(--border-blue);background:var(--blue-dim);color:var(--blue)}
+.dl-btn svg{flex-shrink:0;opacity:.6}
+.dl-btn:hover svg{opacity:1}
+.dl-none{font-size:13px;color:var(--text-3)}
+
+.chapter-rail{padding:24px 14px;overflow-y:auto;max-height:calc(100vh - var(--topbar-h));position:sticky;top:var(--topbar-h);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.05) transparent}
+.chapter-rail::-webkit-scrollbar{width:3px}
+.chapter-rail h4{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;padding:0 4px}
+.ch-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:2px;cursor:pointer;transition:var(--t);border:1px solid transparent}
+.ch-item:hover{background:var(--surface-2)}
+.ch-item.active{background:var(--blue-dim);border-color:rgba(59,130,246,.2)}
+.ch-n{font-size:10px;font-weight:700;color:var(--text-3);min-width:14px;margin-top:2px;flex-shrink:0}
+.ch-body{flex:1}
+.ch-t{font-size:12px;font-weight:500;color:var(--text-2);line-height:1.3;display:block}
+.ch-d{font-size:10px;color:var(--text-3);margin-top:2px;display:block}
+.ch-item.active .ch-t{color:var(--blue);font-weight:600}
+.ch-item.active .ch-n{color:var(--blue)}
+
+.products-bar{padding:13px 36px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.products-bar-label{font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;margin-right:4px;white-space:nowrap}
+.prod-pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;transition:var(--t);white-space:nowrap}
+.prod-pill:hover{border-color:var(--border-blue);background:var(--blue-dim);color:var(--text)}
+.prod-pill .price{color:var(--blue);font-weight:700}
+.prod-pill.featured{background:var(--blue);border-color:var(--blue);color:#fff}
+.prod-pill.featured:hover{background:var(--blue-hover)}
+.prod-pill.featured .price{color:rgba(255,255,255,.8)}
+
+@media(max-width:960px){
+  .sidebar{display:none}.main{margin-left:0}
+  .content-row{grid-template-columns:1fr}.chapter-rail{display:none}
+  .lesson{padding:20px}.products-bar{padding:12px 20px}
 }
 </style>
 </head>
 <body>
 
-<!-- ── TOPBAR ── -->
-<div class="topbar">
+<header class="topbar">
   <a href="index.html" class="topbar-back">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     Back
   </a>
-  <div class="topbar-divider"></div>
+  <div class="topbar-sep"></div>
   <a href="index.html" class="topbar-logo">Vault<span>Labs</span></a>
-  <div class="topbar-divider"></div>
-  <span class="topbar-title">Toolkit</span>
+  <span class="topbar-page">/ Toolkit</span>
   <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="topbar-cta">Get Full Access — $179</a>
-</div>
+  <button onclick="window._sbSignOut()" style="margin-left:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.color='#efefef'" onmouseout="this.style.color='rgba(255,255,255,.5)'">Sign out</button>
+</header>
 
-<div class="toolkit-layout">
-
-  <!-- ── SIDEBAR ── -->
+<div class="layout">
   <aside class="sidebar">
-    <div class="sidebar-section">
-      <span class="sidebar-label">Modules</span>
-
-      <button class="module-btn active" onclick="selectModule(this,0)">
-        <span class="mod-num">00</span>
-        <span class="mod-title">Welcome &amp; Orientation</span>
-        <span class="mod-dur">01:58</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,1)">
-        <span class="mod-num">01</span>
-        <span class="mod-title">How to Install ComfyUI</span>
-        <span class="mod-dur">05:30</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,2)">
-        <span class="mod-num">02</span>
-        <span class="mod-title">ComfyUI Basics</span>
-        <span class="mod-dur">08:12</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,3)">
-        <span class="mod-num">03</span>
-        <span class="mod-title">Generating Your Character</span>
-        <span class="mod-dur">05:12</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,4)">
-        <span class="mod-num">04</span>
-        <span class="mod-title">Generating a Dataset</span>
-        <span class="mod-dur">05:11</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,5)">
-        <span class="mod-num">05</span>
-        <span class="mod-title">Training a LoRA</span>
-        <span class="mod-dur">03:08</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,6)">
-        <span class="mod-num">06</span>
-        <span class="mod-title">Generating Images (Krea2)</span>
-        <span class="mod-dur">06:32</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,7)">
-        <span class="mod-num">07</span>
-        <span class="mod-title">Editing &amp; Skin Enhancing</span>
-        <span class="mod-dur">07:12</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,8)">
-        <span class="mod-num">08</span>
-        <span class="mod-title">Motion Control</span>
-        <span class="mod-dur">06:46</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,9)">
-        <span class="mod-num">09</span>
-        <span class="mod-title">Dataset Generator 2.0</span>
-        <span class="mod-dur">06:20</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,10)">
-        <span class="mod-num">10</span>
-        <span class="mod-title">Training a LoRA (Krea2)</span>
-        <span class="mod-dur">12:44</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,11)">
-        <span class="mod-num">11</span>
-        <span class="mod-title">Prompting System &amp; Library</span>
-        <span class="mod-dur">04:18</span>
-      </button>
-      <button class="module-btn" onclick="selectModule(this,12)">
-        <span class="mod-num">12</span>
-        <span class="mod-title">Content Strategy &amp; Posting SOP</span>
-        <span class="mod-dur">05:44</span>
-      </button>
+    <div class="sidebar-scroll">
+      <span class="sidebar-label">Full Course</span>
+      <button class="mod-btn active" onclick="selectMod(this,0)"><span class="mod-n">00</span><span class="mod-t">Welcome &amp; What You're Building</span><span class="mod-d">02:10</span></button>
+      <button class="mod-btn" onclick="selectMod(this,1)"><span class="mod-n">01</span><span class="mod-t">Hardware &amp; Cloud: What You Need</span><span class="mod-d">04:20</span></button>
+      <button class="mod-btn" onclick="selectMod(this,2)"><span class="mod-n">02</span><span class="mod-t">RunPod Setup — Pod + Network Volume</span><span class="mod-d">06:15</span></button>
+      <button class="mod-btn" onclick="selectMod(this,3)"><span class="mod-n">03</span><span class="mod-t">Installing ComfyUI on RunPod</span><span class="mod-d">05:30</span></button>
+      <button class="mod-btn" onclick="selectMod(this,4)"><span class="mod-n">04</span><span class="mod-t">ComfyUI Manager &amp; Custom Nodes</span><span class="mod-d">07:00</span></button>
+      <button class="mod-btn" onclick="selectMod(this,5)"><span class="mod-n">05</span><span class="mod-t">Navigating ComfyUI &amp; Workflows</span><span class="mod-d">08:30</span></button>
+      <button class="mod-btn" onclick="selectMod(this,6)"><span class="mod-n">06</span><span class="mod-t">Models, LoRAs &amp; Where to Get Them</span><span class="mod-d">05:45</span></button>
+      <button class="mod-btn" onclick="selectMod(this,7)"><span class="mod-n">07</span><span class="mod-t">Creating Your AI Character (Krea2)</span><span class="mod-d">05:12</span></button>
+      <button class="mod-btn" onclick="selectMod(this,8)"><span class="mod-n">08</span><span class="mod-t">Dataset Generator — Training Data</span><span class="mod-d">06:00</span></button>
+      <button class="mod-btn" onclick="selectMod(this,9)"><span class="mod-n">09</span><span class="mod-t">Training Your LoRA</span><span class="mod-d">08:00</span></button>
+      <button class="mod-btn" onclick="selectMod(this,10)"><span class="mod-n">10</span><span class="mod-t">Production Image Generation</span><span class="mod-d">06:32</span></button>
+      <button class="mod-btn" onclick="selectMod(this,11)"><span class="mod-n">11</span><span class="mod-t">Skin Enhance &amp; Upscaling</span><span class="mod-d">07:12</span></button>
+      <button class="mod-btn" onclick="selectMod(this,12)"><span class="mod-n">12</span><span class="mod-t">Prompting System &amp; Library</span><span class="mod-d">04:18</span></button>
+      <button class="mod-btn" onclick="selectMod(this,13)"><span class="mod-n">13</span><span class="mod-t">MiniMax Motion Control (Video)</span><span class="mod-d">06:46</span></button>
+      <button class="mod-btn" onclick="selectMod(this,14)"><span class="mod-n">14</span><span class="mod-t">SCAIL Advanced Video</span><span class="mod-d">09:20</span></button>
+      <button class="mod-btn" onclick="selectMod(this,15)"><span class="mod-n">15</span><span class="mod-t">Content Strategy &amp; Posting SOP</span><span class="mod-d">05:44</span></button>
+      <button class="mod-btn" onclick="selectMod(this,16)"><span class="mod-n">16</span><span class="mod-t">Monetization Setup</span><span class="mod-d">04:50</span></button>
     </div>
-
-    <div class="sidebar-downloads">
-      <p>Workflows</p>
-      <a href="https://whop.com/vaultlabs/krea2-image-kit/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Image Kit — $49
-      </a>
-      <a href="https://whop.com/vaultlabs/video-motion-control/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Motion Control — $69
-      </a>
-      <a href="https://whop.com/vaultlabs/scail-2-video-motion-control/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        SCAIL-2 Video — $99
-      </a>
-      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="dl-btn" style="width:100%;background:var(--blue);color:#fff;border-color:var(--blue)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Full System — $179
-      </a>
+    <div class="sidebar-footer">
+      <span class="sidebar-footer-label">Get Workflows</span>
+      <a href="https://whop.com/vaultlabs/krea2-image-kit/" target="_blank" class="dl-side-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Image Kit — $49</a>
+      <a href="https://whop.com/vaultlabs/video-motion-control/" target="_blank" class="dl-side-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Motion Control — $69</a>
+      <a href="https://whop.com/vaultlabs/scail-2-video-motion-control/" target="_blank" class="dl-side-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>SCAIL-2 Video — $99</a>
+      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="dl-side-btn primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Full System — $179</a>
     </div>
   </aside>
 
-  <!-- ── MAIN ── -->
-  <main class="main-content">
-    <div class="content-area">
-
-      <!-- LESSON PANEL -->
-      <div class="lesson-panel">
-        <p class="lesson-breadcrumb" id="lesson-breadcrumb">Module 00 · Introduction</p>
-        <h2 class="lesson-title" id="lesson-title">Welcome &amp; Orientation</h2>
+  <main class="main">
+    <div class="content-row">
+      <div class="lesson">
+        <p class="lesson-bc" id="lesson-bc">Module 00 · Introduction</p>
+        <h1 class="lesson-title" id="lesson-title">Welcome &amp; What You're Building</h1>
         <div class="lesson-meta">
-          <span class="dur-badge" id="lesson-dur">01:58</span>
-          <span id="lesson-category">Introduction</span>
+          <span class="meta-pill" id="lesson-dur">02:10</span>
+          <span id="lesson-cat-tag" class="cat-tag cat-intro">Introduction</span>
         </div>
-
-        <!-- Video area — locked -->
         <div class="video-wrap">
           <div class="video-lock">
-            <div class="lock-icon">🔒</div>
+            <div class="lock-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <h3>Members-only lesson</h3>
-            <p>Get full access to all 13 modules, downloadable workflows, and the complete AI influencer system.</p>
-            <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="unlock-btn">Get Full Access — $179 →</a>
+            <p>Get full access to all 17 modules, workflows, and the complete AI influencer system.</p>
+            <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="unlock-btn">Unlock Full Access — $179 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
           </div>
         </div>
-
-        <!-- Lesson description -->
-        <p class="lesson-desc" id="lesson-desc">A walkthrough of everything in the VaultLabs system — what you'll build, how the modules are structured, and the fastest path through the content depending on your starting point.</p>
-
-        <!-- What you'll learn -->
-        <div class="lesson-what">
-          <h4>What's covered</h4>
-          <ul id="lesson-points">
-            <li>System overview and recommended watch order</li>
-            <li>What hardware you need (hint: not much)</li>
-            <li>How to navigate the toolkit and downloads</li>
-          </ul>
-        </div>
-
-        <!-- Downloads for this module -->
-        <h4 style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px" id="dl-heading">Downloads</h4>
-        <div class="downloads-row" id="downloads-row">
-          <span style="font-size:13px;color:var(--muted)">No downloads for this module.</span>
-        </div>
+        <div id="lesson-body"></div>
+        <div class="what-box"><h4>What's covered</h4><ul id="lesson-points"></ul></div>
+        <div id="steps-section"></div>
+        <p class="dl-label" id="dl-label" style="display:none">Downloads</p>
+        <div class="dl-row" id="dl-row"><span class="dl-none">No downloads for this module.</span></div>
       </div>
-
-      <!-- CHAPTER RAIL -->
       <div class="chapter-rail">
         <h4>In this module</h4>
-        <div id="chapter-list">
-          <div class="chapter-item active-ch">
-            <span class="ch-num">1</span>
-            <div>
-              <span class="ch-title">Intro &amp; what you're building</span>
-              <span class="ch-dur">01:58</span>
-            </div>
-          </div>
-        </div>
+        <div id="chapter-list"></div>
       </div>
-
     </div>
-
-    <!-- PRODUCTS BAR -->
     <div class="products-bar">
-      <p>Get access:</p>
+      <span class="products-bar-label">Get access</span>
       <a href="https://whop.com/vaultlabs/krea2-image-kit/" target="_blank" class="prod-pill">Image Kit <span class="price">$49</span></a>
       <a href="https://whop.com/vaultlabs/video-motion-control/" target="_blank" class="prod-pill">Motion Control <span class="price">$69</span></a>
       <a href="https://whop.com/vaultlabs/scail-2-video-motion-control/" target="_blank" class="prod-pill">SCAIL-2 Video <span class="price">$99</span></a>
-      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="prod-pill" style="background:var(--blue);border-color:var(--blue);color:#fff">Full System <span class="price" style="color:#fff">$179</span></a>
+      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="prod-pill featured">Full System <span class="price">$179</span></a>
     </div>
   </main>
 </div>
 
 <script>
-const modules = [
-  {
-    num:'00', title:'Welcome &amp; Orientation', dur:'01:58', category:'Introduction',
-    desc:'A walkthrough of everything in the VaultLabs system — what you\'ll build, how the modules are structured, and the fastest path through the content depending on your starting point.',
-    points:['System overview and recommended watch order','What hardware you need (hint: not much)','How to navigate the toolkit and downloads'],
-    downloads:[],
-    chapters:[{t:'Intro &amp; what you\'re building',d:'01:58'}]
-  },
-  {
-    num:'01', title:'How to Install ComfyUI', dur:'05:30', category:'Setup',
-    desc:'Installing ComfyUI on your local machine or on RunPod — step by step. Covers the exact folder structure, model paths, and custom node manager setup.',
-    points:['Local install vs RunPod cloud setup','Custom nodes manager install','Setting up model directories'],
-    downloads:[{label:'RunPod Setup Script (.sh)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Install ComfyUI locally',d:'02:10'},{t:'RunPod cloud setup',d:'02:40'},{t:'Verifying the install',d:'00:40'}]
-  },
-  {
-    num:'02', title:'ComfyUI Basics', dur:'08:12', category:'Setup',
-    desc:'How ComfyUI works — nodes, connections, the queue, saving workflows, loading models. Everything you need before you run your first generation.',
-    points:['Node editor navigation','Loading and saving workflows','Queue management basics','Understanding model slots'],
-    downloads:[],
-    chapters:[{t:'Interface walkthrough',d:'02:00'},{t:'Nodes and connections',d:'02:30'},{t:'Running your first generation',d:'02:00'},{t:'Saving workflows',d:'01:42'}]
-  },
-  {
-    num:'03', title:'Generating Your Character', dur:'05:12', category:'Image',
-    desc:'How to generate a consistent AI character using Krea2 — from txt2img prompting to locking in a face that stays consistent across shots.',
-    points:['Krea2 txt2img workflow walkthrough','Prompt structure for consistent faces','LoRA slot setup','Seed management for consistency'],
-    downloads:[{label:'Krea2 Image Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Loading the workflow',d:'01:00'},{t:'Building your prompt',d:'01:30'},{t:'Running generations',d:'01:42'},{t:'Picking your character seed',d:'01:00'}]
-  },
-  {
-    num:'04', title:'Generating a Dataset', dur:'05:11', category:'Training',
-    desc:'How to generate a high-quality training dataset for LoRA training — variety of poses, angles, lighting, and expressions that make a strong model.',
-    points:['What makes a good training dataset','Pose and angle variety strategy','Automated dataset workflow','Captioning and tagging outputs'],
-    downloads:[{label:'Dataset Generator Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Dataset requirements',d:'01:15'},{t:'Running the dataset workflow',d:'02:00'},{t:'Reviewing and culling outputs',d:'01:56'}]
-  },
-  {
-    num:'05', title:'Training a LoRA', dur:'03:08', category:'Training',
-    desc:'Training your first character LoRA — uploading your dataset, configuring training settings, and running the job on RunPod.',
-    points:['Training settings that work (rank, steps, LR)','Uploading dataset to RunPod','Monitoring training progress','Testing the LoRA output'],
-    downloads:[{label:'LoRA Training Config (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Training settings explained',d:'01:10'},{t:'Running the training job',d:'01:00'},{t:'Testing your LoRA',d:'00:58'}]
-  },
-  {
-    num:'06', title:'Generating Images (Krea2)', dur:'06:32', category:'Image',
-    desc:'The full Krea2 production image workflow — using your trained LoRA with the complete prompt system to get gallery-quality outputs every run.',
-    points:['Full production workflow walkthrough','LoRA strength tuning','Prompt system for photorealism','Batch generation setup'],
-    downloads:[{label:'Krea2 Image Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'},{label:'Prompt Library (.txt)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Loading the production workflow',d:'01:00'},{t:'Prompt system walkthrough',d:'02:00'},{t:'Tuning LoRA strength',d:'01:30'},{t:'Batch output review',d:'02:02'}]
-  },
-  {
-    num:'07', title:'Editing &amp; Skin Enhancing', dur:'07:12', category:'Post-Processing',
-    desc:'The skin enhancer and upscaler workflow — turning raw outputs into clean, high-resolution images ready to post.',
-    points:['Skin enhancement node setup','Upscaling for full resolution','Inpainting for fixing details','Export settings for social media'],
-    downloads:[{label:'Skin Enhance &amp; Upscale Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Skin enhancer workflow',d:'02:30'},{t:'Upscaling pipeline',d:'02:00'},{t:'Inpainting fixes',d:'01:30'},{t:'Export and output',d:'01:12'}]
-  },
-  {
-    num:'08', title:'Motion Control', dur:'06:46', category:'Video',
-    desc:'How to control exactly how your character moves — head turns, walks, gestures — using the motion control workflow.',
-    points:['MiniMax H3 motion workflow','LTX 2.3 director mode','Krea2 → video pipeline','Camera movement control'],
-    downloads:[{label:'Motion Control Workflow (.json)',href:'https://whop.com/vaultlabs/video-motion-control/'}],
-    chapters:[{t:'Motion workflow overview',d:'01:30'},{t:'MiniMax H3 setup',d:'02:00'},{t:'LTX director mode',d:'02:00'},{t:'Camera control tips',d:'01:16'}]
-  },
-  {
-    num:'09', title:'Dataset Generator 2.0', dur:'06:20', category:'Training',
-    desc:'The updated automated dataset generator — faster, more variety, better captioning. Replaces manual dataset generation from Module 04.',
-    points:['Auto-vary poses and angles','Improved captioning pipeline','Quality filter settings','One-click dataset output'],
-    downloads:[{label:'Dataset Generator 2.0 Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'What\'s new in v2',d:'01:00'},{t:'Running the workflow',d:'02:30'},{t:'Output review',d:'02:50'}]
-  },
-  {
-    num:'10', title:'Training a LoRA (Krea2)', dur:'12:44', category:'Training',
-    desc:'Training a LoRA specifically tuned for the Krea2 model — different settings, different approach, significantly better face consistency.',
-    points:['Krea2-specific LoRA settings','Dataset requirements for Krea2','Rank and step configuration','Testing and validating the result'],
-    downloads:[{label:'Krea2 LoRA Training Config (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Krea2 LoRA vs standard LoRA',d:'02:00'},{t:'Training settings',d:'03:00'},{t:'Running the job',d:'03:00'},{t:'Testing outputs',d:'03:00'},{t:'Tuning for quality',d:'01:44'}]
-  },
-  {
-    num:'11', title:'Prompting System &amp; Library', dur:'04:18', category:'Prompting',
-    desc:'The full prompt system used to get photorealistic, consistent results every time — plus the complete prompt library you can copy directly.',
-    points:['JoyCaption-style prompt structure','Clothing, pose, and setting system','Copy-paste prompt library','How to adapt prompts for different shots'],
-    downloads:[{label:'Prompt Library (.txt)',href:'https://whop.com/vaultlabs/krea2-image-kit/'},{label:'Prompt Builder Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
-    chapters:[{t:'Prompt structure walkthrough',d:'01:30'},{t:'Clothing and pose system',d:'01:18'},{t:'Using the library',d:'01:30'}]
-  },
-  {
-    num:'12', title:'Content Strategy &amp; Posting SOP', dur:'05:44', category:'Strategy',
-    desc:'The exact content strategy — how often to post, what platforms, what format, and the posting SOP that keeps accounts growing consistently.',
-    points:['Platform strategy (TikTok, Reels, Fans)','Posting frequency and timing','Content format guide','Monetization setup walkthrough'],
-    downloads:[{label:'Posting SOP (.pdf)',href:'https://whop.com/vaultlabs/full-system-00/'}],
-    chapters:[{t:'Platform breakdown',d:'01:30'},{t:'Posting schedule',d:'01:14'},{t:'Monetization setup',d:'02:00'},{t:'Staying consistent',d:'01:00'}]
-  }
+const CHK=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const DL=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const TIPSVG=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const WSVG=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+const VSVG=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`;
+
+const CAT={Introduction:'cat-intro',Setup:'cat-setup',Training:'cat-training',Image:'cat-image',Video:'cat-video',Strategy:'cat-strategy',Prompts:'cat-prompts'};
+
+const M=[
+{num:'00',title:'Welcome &amp; What You\'re Building',dur:'02:10',cat:'Introduction',
+desc:'A full walkthrough of the VaultLabs system — what you\'ll build, how the course is structured, and the exact path from zero to a live, monetized AI influencer page.',
+points:['What the full system produces — real results shown','Recommended watch order by experience level','Full software and accounts list before you start','How training, image gen, and video all connect','Where to get help — Discord + community'],
+steps:[],dl:[],
+chapters:[{t:'System overview & what you\'ll build',d:'01:10'},{t:'Watch order & prerequisites',d:'01:00'}]},
+
+{num:'01',title:'Hardware &amp; Cloud: What You Actually Need',dur:'04:20',cat:'Setup',
+desc:'The honest hardware breakdown. Most creators running this system use cloud exclusively — no expensive GPU required. This module helps you decide what setup makes sense for you.',
+points:['Local GPU vs cloud — when each makes sense','Minimum specs for running locally (16GB VRAM for training)','Why RunPod is the recommended option and what it actually costs','Best GPU options on RunPod for image gen vs training','Mac/Apple Silicon — what works and what doesn\'t','Estimated monthly cloud cost for an active creator'],
+steps:[
+{n:'1',t:'Check your local hardware',note:'Windows: Open Task Manager → Performance → GPU. Mac: About This Mac → Graphics. Check your GPU model and VRAM. If under 8GB VRAM, cloud is your best path.'},
+{n:'2',t:'Understand the cost breakdown',note:'Image generation: RTX 4090 at ~$0.44/hr. LoRA training: 1–2 hours on A100 at ~$1.99/hr. Most active creators spend $20–50/month total on cloud.'},
+{n:'3',t:'Create a RunPod account',note:'Go to runpod.io — create an account, add $20 credit to start. That\'s enough for full setup and your first character generation session.'}
+],dl:[],
+chapters:[{t:'Local vs cloud — the honest answer',d:'01:30'},{t:'RunPod GPU options explained',d:'01:30'},{t:'Estimated cost per task',d:'01:20'}]},
+
+{num:'02',title:'RunPod Setup — Pod + Network Volume',dur:'06:15',cat:'Setup',
+desc:'Step by step: creating a RunPod pod correctly, attaching a network volume for persistent model storage, and understanding the folder structure so nothing gets lost between sessions.',
+points:['What a network volume is and why you must use one','Creating your first pod — which template to pick','Attaching the network volume BEFORE first launch','SSH access and the web terminal','The /workspace/ folder structure fully explained','How to stop and restart without losing data','Mistakes that waste money or wipe your files'],
+steps:[
+{n:'1',t:'Create your Network Volume first',note:'RunPod Dashboard → Storage → Network Volumes → Create. Name: "comfyui-models". Size: 100GB minimum. Pick the same datacenter region you\'ll run pods in. This is where your models live permanently.'},
+{n:'2',t:'Create your pod',note:'Pods → Deploy → Search for "runpod-slim" template. Select RTX 4090 (best price/performance for image gen). BEFORE hitting Deploy: scroll down and attach your Network Volume.'},
+{n:'3',t:'Set container disk size',note:'Set Container Disk to at least 50GB. The network volume stores models. The container disk stores ComfyUI itself and your generated outputs.'},
+{n:'4',t:'Deploy and connect',note:'Click Deploy. Pod takes 1–3 minutes to start. Click Connect → Web Terminal (or Jupyter) to open a browser-based terminal into the pod.'},
+{n:'5',t:'Verify your volume is mounted',note:'In the terminal, run: ls /workspace/ — you should see your volume listed. This confirms models you put here will persist when you stop the pod.'},
+{warn:'If you deploy a pod WITHOUT attaching a network volume, any models you download go onto the container disk — and are permanently deleted when you terminate the pod.'}
+],dl:[],
+chapters:[{t:'Network volumes explained',d:'01:00'},{t:'Creating the pod correctly',d:'02:00'},{t:'Connecting via web terminal',d:'01:15'},{t:'Understanding folder structure',d:'02:00'}]},
+
+{num:'03',title:'Installing ComfyUI on RunPod',dur:'05:30',cat:'Setup',
+desc:'Installing ComfyUI from scratch — using the VaultLabs setup script for a one-command install or doing it step by step manually. Covers git clone through first launch and web access.',
+points:['VaultLabs setup script — one command to install everything','Manual install: git clone, pip install, first launch','Why you must use python3 (not python) on RunPod','The correct startup command with the --listen flag','Accessing ComfyUI through the RunPod proxy URL','What to do when the interface shows blank on first load'],
+steps:[
+{n:'1',t:'Install ComfyUI',note:'In your RunPod terminal, run:'},
+{code:'cd /workspace && git clone https://github.com/comfyanonymous/ComfyUI.git runpod-slim/ComfyUI\ncd runpod-slim/ComfyUI && pip install -r requirements.txt --break-system-packages'},
+{n:'2',t:'Start ComfyUI',note:'Once install finishes:'},
+{code:'cd /workspace/runpod-slim/ComfyUI && python3 main.py --listen 0.0.0.0 --port 8188'},
+{n:'3',t:'Access the interface',note:'In RunPod → your pod → Connect → click the "8188" port link. ComfyUI opens in your browser. If it loads blank, wait 20–30 seconds and refresh.'},
+{n:'4',t:'Install ComfyUI Manager',note:'In ComfyUI: click the Manager button (top right menu) → Install via Git URL → paste: https://github.com/ltdrdata/ComfyUI-Manager → Install → Restart ComfyUI.'},
+{tip:'Always use python3, not python. RunPod only has python3 in PATH. Using python will give you a "command not found" error.'}
+],dl:[{l:'RunPod Setup Script (.sh)',h:'https://whop.com/vaultlabs/full-system-00/'}],
+chapters:[{t:'Setup script walkthrough',d:'01:30'},{t:'Manual install steps',d:'01:30'},{t:'Starting ComfyUI & accessing the UI',d:'01:30'},{t:'Installing ComfyUI Manager',d:'01:00'}]},
+
+{num:'04',title:'ComfyUI Manager &amp; Custom Nodes',dur:'07:00',cat:'Setup',
+desc:'ComfyUI Manager is how you install and manage everything — custom nodes, missing packages, model downloads. This module covers the Manager workflow so you can fix any "red node" error yourself.',
+points:['What custom nodes are and why the system needs specific ones','ComfyUI Manager interface: Install, Update, Fix','Installing nodes from the built-in registry','Installing nodes directly from a GitHub URL','Auto-fixing red node "missing node" errors','The complete node list for this system','Updating nodes and restarting safely'],
+steps:[
+{n:'1',t:'Open ComfyUI Manager',note:'In ComfyUI → Manager button in the top menu bar. If you don\'t see it, Manager isn\'t installed yet — go back to Module 03, step 4.'},
+{n:'2',t:'Install required custom nodes',note:'Manager → Install Custom Nodes. Search for and install each of these one at a time:'},
+{tip:'Required nodes: ComfyUI-Manager (already installed), WAS Node Suite, ComfyUI-Impact-Pack, ComfyUI-KJNodes, ComfyUI-VideoHelperSuite, rgthree-comfy, ComfyUI-Advanced-ControlNet, comfyui-reactor'},
+{n:'3',t:'Fix red nodes automatically',note:'Open any workflow and see red/error nodes? Go to Manager → Install Missing Custom Nodes → it scans the workflow and finds exactly what\'s missing → Install All → Restart ComfyUI.'},
+{n:'4',t:'Update all nodes',note:'Manager → Update All → this brings every installed node to the latest version. Always restart ComfyUI after updating.'},
+{warn:'Never update nodes while a generation is running. Only update when the queue is empty, then restart before running again.'}
+],dl:[],
+chapters:[{t:'Manager interface walkthrough',d:'01:30'},{t:'Installing nodes from the registry',d:'02:00'},{t:'Fixing red node errors',d:'01:30'},{t:'Required nodes for this system',d:'02:00'}]},
+
+{num:'05',title:'Navigating ComfyUI &amp; Loading Workflows',dur:'08:30',cat:'Setup',
+desc:'The full ComfyUI interface explained — nodes, connections, the queue, loading a workflow from a JSON file, saving your work, and running your first generation without getting stuck.',
+points:['ComfyUI canvas: what everything does','Understanding nodes and how data flows through them','Loading a .json workflow file','Reading a workflow graph — left to right data flow','The Queue Prompt button and managing the generation queue','Seed control — random vs fixed seeds','Saving your own workflows','What to do when a generation gets stuck or errors out'],
+steps:[
+{n:'1',t:'Load a workflow',note:'Drag and drop any .json workflow file directly onto the ComfyUI canvas. The node graph will appear. Alternatively use the Load button in the right sidebar.'},
+{n:'2',t:'Read the graph left to right',note:'Data flows left to right. Left side: model and prompt inputs. Middle: KSampler processes it. Right side: output saves the image. Follow the colored connection lines.'},
+{n:'3',t:'Set your seed',note:'Find the KSampler node. Seed -1 = random (new image every run). Any specific number = same image every run. Write down seeds that produce results you like.'},
+{n:'4',t:'Queue your first generation',note:'Click Queue Prompt (or Ctrl+Enter). Watch the progress bar in the queue panel. When it reaches 100%, the image appears in the output node and saves to the output folder.'},
+{n:'5',t:'Save your workflow',note:'After making changes, use Save in the sidebar — give it a descriptive name. This saves the .json. You can share this file with others and they can load your exact workflow.'},
+{tip:'Right-click on empty canvas space to add a new node. Right-click on a node to get options: delete, bypass (disable), duplicate.'}
+],dl:[],
+chapters:[{t:'Canvas, sidebar, queue overview',d:'02:00'},{t:'Nodes and connections explained',d:'02:00'},{t:'Loading and reading a workflow',d:'02:00'},{t:'Running your first generation',d:'01:30'},{t:'Saving workflows',d:'01:00'}]},
+
+{num:'06',title:'Models, LoRAs &amp; Where to Get Them',dur:'05:45',cat:'Setup',
+desc:'Where to find the models you need, how to download them directly into RunPod, and the exact folder structure ComfyUI expects. Covers Krea2, Flux, and every file type used in this system.',
+points:['Checkpoint models vs LoRAs — the difference explained','CivitAI: browsing, filtering, and downloading','HuggingFace: finding and downloading model files','ComfyUI folder structure — where every file type goes','Models required for this system and where to get each','Downloading directly into RunPod with wget','Refreshing ComfyUI\'s model list without restarting'],
+steps:[
+{n:'1',t:'Know your folder structure',note:'/workspace/ComfyUI/models/ contains:\n  checkpoints/  → full model files (.safetensors)\n  loras/         → LoRA adapter files (.safetensors)\n  vae/           → VAE files\n  controlnet/    → ControlNet models\n  upscale_models/ → upscaler models'},
+{n:'2',t:'Download a model with wget',note:'Navigate to the target folder, then download directly:'},
+{code:'cd /workspace/ComfyUI/models/checkpoints\nwget -O modelname.safetensors "PASTE_DIRECT_DOWNLOAD_URL_HERE"'},
+{n:'3',t:'Get the CivitAI direct download URL',note:'On CivitAI → click the Download button → right-click → Copy Link Address. Paste that into wget. For HuggingFace: click the file → right-click the Download button → Copy Link.'},
+{n:'4',t:'Refresh models in ComfyUI',note:'After downloading, click the small refresh icon next to any model dropdown in ComfyUI, OR Manager → Refresh Model List. No restart needed.'},
+{warn:'Store all models on your Network Volume (/workspace/ComfyUI/models/). If they\'re on the container disk only, they disappear when you terminate the pod.'}
+],dl:[{l:'Model Download List (.txt)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'Model types explained',d:'01:30'},{t:'CivitAI and HuggingFace walkthrough',d:'01:30'},{t:'Downloading into RunPod with wget',d:'01:45'},{t:'Folder structure & model refresh',d:'01:00'}]},
+
+{num:'07',title:'Creating Your AI Character (Krea2)',dur:'05:12',cat:'Image',
+desc:'How to generate your first consistent AI character using the Krea2 image workflow — from loading the workflow to finding and locking a character seed you can use every single run.',
+points:['Loading and reading the Krea2 image workflow','Writing a character generation prompt that works','What LoRA strength to use at this stage','Running multiple seeds to explore character options','How to evaluate a "good" character seed vs a bad one','Locking your seed for consistency across all future runs','Saving reference images for your training dataset'],
+steps:[
+{n:'1',t:'Load the Krea2 image workflow',note:'Drag krea2-image-workflow.json onto your ComfyUI canvas. The workflow loads. Make sure Krea2 is selected in the checkpoint node.'},
+{n:'2',t:'Write your character prompt',note:'Use this structure: [ethnicity/look], [age range], [style/aesthetic], [quality tags]\nExample: "Brazilian woman, early 20s, fitness model aesthetic, photorealistic, detailed skin texture, 8k resolution"'},
+{n:'3',t:'Run on random seed first',note:'Set seed to -1. Run 20–30 generations. Move quickly — you\'re looking for face shapes, not perfect lighting or backgrounds. Screenshot every face structure you\'re drawn to.'},
+{n:'4',t:'Lock your best seed',note:'Found a face you want to build your character around? Write down that exact seed number. Set the seed field to that number. From this point on, every run at this seed = your character\'s base.'},
+{n:'5',t:'Save 5–10 clean reference images',note:'With your seed locked, run 5–10 more images varying the prompt slightly (different lighting, slightly different angles). These become reference images and early dataset material.'},
+{tip:'The face structure is what matters at this stage. Don\'t reject seeds because of lighting, skin tone shade, or pose — those are all controlled by prompting later. Judge only the bone structure and face shape.'},
+{vid:'Character seed selection demo [add video here]'}
+],dl:[{l:'Krea2 Image Workflow (.json)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'Loading the Krea2 workflow',d:'01:00'},{t:'Prompt structure for character gen',d:'01:30'},{t:'Running seeds & exploring looks',d:'01:42'},{t:'Locking your character seed',d:'01:00'}]},
+
+{num:'08',title:'Dataset Generator — Building Training Data',dur:'06:00',cat:'Training',
+desc:'Your LoRA is only as good as your training data. This module covers the automated dataset generator that creates varied, caption-ready images in bulk — the right way.',
+points:['What makes a good training dataset (and what ruins a LoRA)','Minimum and ideal dataset size for strong face consistency','The pose and angle variety that makes LoRAs generalize well','Loading and configuring the dataset generator workflow','Reviewing and culling: what to keep, what to delete','Auto-captioning your dataset for training','Folder structure before handing off to training'],
+steps:[
+{n:'1',t:'Load the dataset generator',note:'Load dataset-generator.json in ComfyUI. This workflow automatically generates batches of your character in varied poses, angles, expressions, and lighting — all from your locked seed.'},
+{n:'2',t:'Run variety batches',note:'The workflow has sections for different shot types: close-up face, half body, three-quarter body, full body. Run 30–40 images of each type. Target 150+ total before culling.'},
+{n:'3',t:'Cull your dataset',note:'Go through every generated image. DELETE:\n  - Blurry or low resolution images\n  - Wrong face (LoRA drift during generation)\n  - Multiple people in frame\n  - Extreme distortions or artifacts\n  Keep only clean, single-character, in-focus shots.'},
+{n:'4',t:'Caption your images',note:'Good captions significantly improve LoRA face accuracy. The workflow includes auto-captioning. Format: "photo of [trigger word], [describe what\'s in the image]". Example: "photo of sakichar, Brazilian woman, close-up portrait, golden lighting"'},
+{n:'5',t:'Organize the folder',note:'Your dataset folder should contain: only .png/.jpg image files + matching .txt caption files with the same filename. No subfolders. ComfyUI training scripts expect flat structure.'},
+{warn:'80 perfect images beats 300 mediocre ones. Don\'t skip culling — it directly impacts how well your LoRA learns the face.'}
+],dl:[{l:'Dataset Generator Workflow (.json)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'What makes a good training dataset',d:'01:15'},{t:'Running the dataset generator workflow',d:'02:00'},{t:'Reviewing and culling images',d:'01:45'},{t:'Auto-captioning for training',d:'01:00'}]},
+
+{num:'09',title:'Training Your LoRA',dur:'08:00',cat:'Training',
+desc:'The complete LoRA training process — uploading your dataset to RunPod, configuring settings that work, running the job, testing the result, and knowing when to retrain.',
+points:['LoRA rank, steps, and learning rate — what each actually does','Which RunPod GPU to use for training (A100 vs 4090)','Uploading your dataset to /workspace/','The training config that produces consistent faces','Monitoring training — what the loss curve tells you','Testing your LoRA immediately after training','What to do when the output looks wrong','Saving your LoRA to the network volume'],
+steps:[
+{n:'1',t:'Upload your dataset',note:'In RunPod Jupyter: drag your dataset folder into the file browser sidebar → it uploads to /workspace/. Alternatively use the terminal with scp or the RunPod file upload tool.'},
+{n:'2',t:'Configure training settings',note:'Open the training config file. Key settings to use:\n  Rank (network_dim): 32\n  Steps: 1500–2000 for 80–100 images\n  Learning rate: 0.0004\n  Optimizer: AdamW8bit\n  Scheduler: cosine_with_restarts'},
+{n:'3',t:'Start training',note:'Run the training script from terminal:'},
+{code:'cd /workspace && python3 train_network.py --config_file training-config.toml'},
+{n:'4',t:'Monitor loss',note:'The training log shows loss values. A healthy run: starts around 0.1–0.2, decreases steadily, levels off near 0.05–0.08 by the end. If loss stays high or spikes, stop and check your dataset.'},
+{n:'5',t:'Test the LoRA',note:'After training: move the .safetensors to /workspace/ComfyUI/models/loras/. Load the Krea2 image workflow. Add a LoRA loader node, select your LoRA, set strength to 0.75. Run 5 test generations.'},
+{n:'6',t:'Tune strength if needed',note:'Too strong (>0.9): face is accurate but prompt loses control. Too weak (<0.5): face drifts. Sweet spot: 0.7–0.8 for most LoRAs. Adjust in 0.05 increments.'},
+{tip:'Save the finished .safetensors to /workspace/ComfyUI/models/loras/ immediately after training. This is on the network volume — it persists if you stop the pod.'}
+],dl:[{l:'LoRA Training Config (.json)',h:'https://whop.com/vaultlabs/krea2-image-kit/'},{l:'Training Script (.sh)',h:'https://whop.com/vaultlabs/full-system-00/'}],
+chapters:[{t:'Training settings explained',d:'02:00'},{t:'Uploading dataset & starting the job',d:'02:00'},{t:'Monitoring the training run',d:'01:30'},{t:'Testing and tuning your LoRA',d:'02:30'}]},
+
+{num:'10',title:'Production Image Generation',dur:'06:32',cat:'Image',
+desc:'The full production Krea2 workflow for getting consistent, gallery-quality images every session — with your trained LoRA, the complete prompting system, and batch output ready for editing.',
+points:['Production workflow vs character creation workflow — key differences','Connecting your trained LoRA to the production pipeline','CFG scale, steps, and sampler settings for Krea2 specifically','Batch generation — how many images per queue to run','Location and scenario variety across a session','Reviewing and selecting your best outputs','Organizing outputs for the skin enhancement step'],
+steps:[
+{n:'1',t:'Load the production workflow',note:'Load krea2-production.json. This has the full pipeline: model + LoRA loader → KSampler → face detail pass → upscale → save. More complete than the character creation workflow.'},
+{n:'2',t:'Connect your LoRA',note:'In the LoRA Loader node: select your trained LoRA from the dropdown. Set strength_model to 0.75. Set strength_clip to 0.75. These can be adjusted per-scenario.'},
+{n:'3',t:'Configure the sampler',note:'For Krea2: Steps 25–30, CFG 6.5–7.5, Sampler: dpmpp_2m, Scheduler: karras. These settings are pre-configured in the workflow — only adjust if you\'re getting consistent issues.'},
+{n:'4',t:'Run batches by scenario',note:'Use the prompt library to plan your session: 3–4 different locations, 2–3 outfits each. Run 8–16 images per prompt combo. One session = enough content for a week of posts.'},
+{n:'5',t:'Select and organize outputs',note:'After each batch, move the best images into a "selected" folder. Target: 20–30 clean selects per session. These go through skin enhancement next.'},
+{vid:'Full production session walkthrough [add video here]'}
+],dl:[{l:'Krea2 Production Workflow (.json)',h:'https://whop.com/vaultlabs/krea2-image-kit/'},{l:'Prompt Library (.txt)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'Production workflow overview',d:'01:30'},{t:'LoRA connection & sampler settings',d:'01:30'},{t:'Batch generation by scenario',d:'01:30'},{t:'Output review and selection',d:'02:02'}]},
+
+{num:'11',title:'Skin Enhance &amp; Upscaling',dur:'07:12',cat:'Image',
+desc:'Raw ComfyUI outputs always need post-processing before they\'re post-ready. This module covers the skin enhancement and upscaling pipeline that cleans up every image and adds resolution.',
+points:['Why every image needs post-processing before posting','The skin enhancer node — how it works and what it fixes','Upscaling from 1024 to 3–4x output resolution','Inpainting for fixing hands, eyes, and face detail issues','When to use face restoration (CodeFormer/GFPGAN)','Correct export sizes for Instagram and TikTok','Batch processing multiple images through the pipeline'],
+steps:[
+{n:'1',t:'Load the skin enhance workflow',note:'Load skin-enhance-upscale.json. Drag your selected images into the input node (or point the Load Image node to your selected folder). Each image takes 30–90 seconds.'},
+{n:'2',t:'Set enhancement strength',note:'The denoise slider on the inpaint pass controls how aggressively it refines the image. 0.3–0.4 = subtle, preserves the original look. 0.5–0.6 = stronger cleanup. 0.7+ may shift character look.'},
+{n:'3',t:'Upscale to posting resolution',note:'The workflow outputs 2048x2048 (square) or 2048x3072 (portrait) by default. For Instagram posts: 1080x1350 is the ideal ratio. Export at 2x then downsize in your editor for maximum sharpness.'},
+{n:'4',t:'Fix problem areas with inpainting',note:'Hands looking bad? Eyes slightly off? Use the inpaint mask in the workflow. Draw over the problem area, set denoise to 0.4, run. Usually fixed in one pass. Repeat if needed.'},
+{tip:'Don\'t skip this step. Even a great generation benefits from skin enhancement — it adds the final layer of quality that makes images look professional rather than AI-generated.'},
+{vid:'Before/after skin enhancement demo [add video here]'}
+],dl:[{l:'Skin Enhance &amp; Upscale Workflow (.json)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'Skin enhancer explained',d:'01:45'},{t:'Upscaling pipeline',d:'01:30'},{t:'Inpainting problem areas',d:'02:00'},{t:'Export sizes for each platform',d:'01:57'}]},
+
+{num:'12',title:'Prompting System &amp; Library',dur:'04:18',cat:'Prompts',
+desc:'The full prompt system for getting photorealistic, varied, consistent results every time — plus the complete copy-paste library organized by location, outfit, lighting, and mood.',
+points:['Prompt anatomy: subject + style + environment + lighting + camera + quality','The quality booster tags that unlock Krea2\'s full capability','Location prompts: beach, gym, hotel, city, studio, tropical, indoor','Outfit and styling prompts organized by content type','Lighting prompts: golden hour, studio, blue hour, candlelight, natural','The negative prompt template you should always be using','How to stack and combine prompts for specific scenarios','When short prompts work better than long ones'],
+steps:[
+{n:'1',t:'Learn the prompt structure',note:'[Subject] + [Style] + [Environment] + [Lighting] + [Camera] + [Quality Tags]\n\nExample: "Brazilian fitness model, athletic wear, Maldives beach, golden hour backlit, 85mm portrait lens shallow depth of field, photorealistic, pore detail, 8k"'},
+{n:'2',t:'Always include a negative prompt',note:'Load the negative prompt template into every workflow\'s negative CLIP node. It prevents the most common issues: extra limbs, blurry faces, plastic skin, oversaturation, watermarks.'},
+{n:'3',t:'Use the prompt library',note:'The library has 100+ copy-paste ready combinations organized by: Location, Outfit, Lighting, Mood, Camera angle. Pick one from each category, combine them, paste into your workflow.'},
+{n:'4',t:'Vary your scenes systematically',note:'For consistent content: rotate through 4 location types per week. Example week: Monday beach, Tuesday gym lifestyle, Wednesday indoor/hotel, Thursday outdoor city. Same character, new world every day.'},
+{tip:'Less is more for Krea2. Overly long prompts can confuse the model. 2–4 descriptive phrases + quality tags is usually better than a 20-word description of every detail.'}
+],dl:[{l:'Prompt Library (.txt)',h:'https://whop.com/vaultlabs/krea2-image-kit/'},{l:'Negative Prompt Template (.txt)',h:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+chapters:[{t:'Prompt structure walkthrough',d:'01:30'},{t:'Negative prompt template',d:'00:48'},{t:'Using the prompt library',d:'01:30'},{t:'Scene variety strategy',d:'00:30'}]},
+
+{num:'13',title:'MiniMax Motion Control (Video)',dur:'06:46',cat:'Video',
+desc:'Turning your still images into video using MiniMax — the strongest model for realistic motion in AI influencer content. Covers the workflow, motion prompting, and getting consistent results.',
+points:['Why MiniMax produces the most realistic motion for this use case','Image-to-video vs text-to-video — which to use and when','Loading and understanding the MiniMax workflow','Writing motion prompts that actually direct movement','Camera movement control: zoom, pan, dolly, handheld feel','Clip length and frame rate for social media formats','Fixing motion artifacts and unstable clips','Exporting for TikTok, Reels, and Fanvue'],
+steps:[
+{n:'1',t:'Load the MiniMax workflow',note:'Load minimax-motion.json in ComfyUI. The workflow takes a still image as input and generates a 5–10 second video clip. Connect your enhanced image from Module 11 to the input.'},
+{n:'2',t:'Prepare your input image',note:'Use a clean, enhanced image — 1024x1024 or 1024x1536 works best. The better the input quality, the better the motion output. Don\'t use raw ComfyUI outputs without enhancement first.'},
+{n:'3',t:'Write your motion prompt',note:'Be specific and directional. Bad: "woman moving". Good: "woman walking slowly toward camera, hair moving in gentle breeze, glances down then smiles up at camera".\nDescribe motion like a director blocking a scene.'},
+{n:'4',t:'Set clip parameters',note:'5 seconds = sweet spot for social. Generate 3–5 variations of the same motion prompt and pick the cleanest result. Subtle motions (breathing, hair, gentle look) are more reliable than complex actions.'},
+{n:'5',t:'Export the clip',note:'Output goes to your ComfyUI output folder as .mp4. Download to your local machine, then bring into CapCut or your video editor for music and captions.'},
+{tip:'For loopable content: "camera slowly zooms in" or "gentle hair movement in wind" loops more naturally than walk cycles or arm movements. Loop-able clips get more watch time.'},
+{vid:'MiniMax motion results — example clips [add videos here]'}
+],dl:[{l:'MiniMax Motion Workflow (.json)',h:'https://whop.com/vaultlabs/video-motion-control/'}],
+chapters:[{t:'MiniMax overview & why it works',d:'01:00'},{t:'Preparing your input image',d:'01:00'},{t:'Motion prompting that works',d:'02:00'},{t:'Settings & clip length',d:'01:30'},{t:'Export & editing',d:'01:16'}]},
+
+{num:'14',title:'SCAIL Advanced Video',dur:'09:20',cat:'Video',
+desc:'The SCAIL-2 video system — for more cinematic, controllable video content with LTX director mode, scene-level motion control, and multi-clip generation for longer-form content.',
+points:['What SCAIL-2 adds over MiniMax — when to use each','LTX 2.3 director mode: cinematic camera control language','Multi-clip sequences and how to build a full video','Motion intensity from subtle to dramatic','Generating b-roll style clips for editing variety','Upscaling video frames before re-encoding','Exporting from ComfyUI to your editing timeline','SCAIL-2 node-by-node walkthrough'],
+steps:[
+{n:'1',t:'Load SCAIL-2 workflow',note:'Load scail2-video.json. This is a larger multi-stage workflow. It processes in sections: base generation → director mode camera → frame upscale → final encode.'},
+{n:'2',t:'Understand the pipeline stages',note:'Stage 1: Generate base motion from your image (like MiniMax).\nStage 2: Apply LTX director mode — this is where cinematic camera work is added.\nStage 3: Frame-by-frame upscaling.\nStage 4: Re-encode to final .mp4.'},
+{n:'3',t:'Director mode prompting',note:'LTX responds to film direction language. Examples:\n"medium close-up, camera slowly pushes forward, subject looks down then up at camera"\n"wide establishing shot, camera pans left, subject walks into frame from right"\nThink: shot type + camera movement + subject action.'},
+{n:'4',t:'Generate b-roll clips',note:'Don\'t just shoot the face. Generate clips that don\'t show the character directly: hands on a surface, back of hair blowing in wind, outfit detail zoom, silhouette against light. These make your edits dynamic.'},
+{n:'5',t:'Build a short video sequence',note:'A 30-second TikTok uses 4–8 clips. Mix: 2–3 face/motion clips + 1–2 b-roll clips + 1 closer detail clip. Download all, bring into CapCut. Add royalty-free music. Add captions with CapCut auto-caption.'},
+{vid:'SCAIL-2 full pipeline demo [add video here]'}
+],dl:[{l:'SCAIL-2 Video Workflow (.json)',h:'https://whop.com/vaultlabs/scail-2-video-motion-control/'}],
+chapters:[{t:'SCAIL-2 vs MiniMax: when to use each',d:'01:30'},{t:'LTX director mode explained',d:'02:00'},{t:'Multi-clip generation workflow',d:'02:00'},{t:'B-roll and scene variety',d:'02:00'},{t:'Export and editing pipeline',d:'01:50'}]},
+
+{num:'15',title:'Content Strategy &amp; Posting SOP',dur:'05:44',cat:'Strategy',
+desc:'The exact content strategy for growing AI influencer accounts — posting frequency, platform breakdown, format guide for each platform, and a repeatable SOP that keeps it consistent without hours of daily work.',
+points:['Platform breakdown: TikTok, Instagram, Fanvue, OnlyFans','Minimum posting frequency to stay in the algorithm','Content ratio: lifestyle vs premium (by platform)','Using a content calendar to batch 7 days in one session','Caption and hashtag formula for each platform','Comment response SOP — how often, what to say','Repurposing one video across multiple platforms efficiently','When to post and when not to'],
+steps:[
+{n:'1',t:'Set your posting schedule',note:'Minimum for algorithm growth:\n  TikTok: 1 video/day\n  Instagram Reels: 1 video/day\n  Fanvue/OF: 3–5 posts/week (mix of photos and short clips)\n\nBatch-create 7 days of content in a single 2–3 hour ComfyUI session.'},
+{n:'2',t:'Know the format per platform',note:'TikTok + Reels: 9:16 vertical, 15–45 seconds, strong visual hook in first 2 seconds.\nFanvue/OF: mix of square and portrait photos + short clips. More relaxed, lifestyle-heavy feed.'},
+{n:'3',t:'The caption formula',note:'Line 1: Hook (stop the scroll — make a statement or ask a question)\nLine 2–3: 1–2 sentences max. Conversational, not robotic.\nLine 4: Soft CTA — "link in bio 🔗" or "you know where to find me"\nHashtags: 3–5 niche tags only (not 30 generic ones)'},
+{n:'4',t:'Batching workflow',note:'One session produces a week of content:\n  1. Generate 20–30 images → enhance all\n  2. Generate 7–10 video clips\n  3. Write captions for all posts in one sitting\n  4. Schedule using Buffer, Later, or Creator Studio\n  5. Done — don\'t touch it until next session'},
+{tip:'Accounts that post every day for 30 straight days see the biggest algorithmic push. Don\'t post twice one day then skip two days. Consistent beats viral.'}
+],dl:[{l:'Posting SOP (.pdf)',h:'https://whop.com/vaultlabs/full-system-00/'},{l:'Content Calendar Template (.xlsx)',h:'https://whop.com/vaultlabs/full-system-00/'}],
+chapters:[{t:'Platform breakdown & where to focus',d:'01:30'},{t:'Posting schedule & frequency',d:'01:14'},{t:'Caption & hashtag strategy',d:'01:30'},{t:'Batching content efficiently',d:'01:30'}]},
+
+{num:'16',title:'Monetization Setup',dur:'04:50',cat:'Strategy',
+desc:'How to actually make money with the system — setting up Fanvue, connecting your free platforms to drive traffic to paid, and the pricing and content structure that converts followers into subscribers.',
+points:['Fanvue vs OnlyFans — why Fanvue is the better starting point in 2024','Setting up your Fanvue page: profile, bio, pricing, and first posts','Subscription pricing that converts: what to charge as a starter','Content tiers: free feed, subscription, PPV (pay-per-view)','Connecting TikTok and Instagram to drive Fanvue traffic','Link-in-bio setup that maximizes conversion','First 30 days: what to focus on and what to ignore','Scaling: adding more characters or expanding to new platforms'],
+steps:[
+{n:'1',t:'Create your Fanvue page',note:'Go to fanvue.com → Create Creator Account. Use your character\'s persona name. Upload a clean (non-explicit) profile photo and a high-quality banner image. Write a bio that creates curiosity without being flagged.'},
+{n:'2',t:'Set your subscription price',note:'Start at $9.99/month. This is the proven conversion sweet spot — low enough that the decision is easy, high enough to generate real income at volume. Increase to $14.99 after hitting 50+ subscribers.'},
+{n:'3',t:'Set up your link-in-bio',note:'Use Linktree (free) or Stan.store. Primary link: your Fanvue. Secondary: Discord invite (builds community). On TikTok and Instagram, your bio should just say your character\'s name + the link. Nothing else.'},
+{n:'4',t:'The first 30-day push',note:'Post every single day. Reply to every comment (even just an emoji). Follow back active accounts. DM new followers with a short message. Don\'t obsess over follower count — obsess over Fanvue link clicks.'},
+{n:'5',t:'Income math',note:'100 Fanvue subscribers × $9.99 = ~$999/month recurring.\n200 subscribers = ~$2,000/month.\nAdd PPV sales on top.\n\nMost consistent accounts hit 100 subscribers within 60–90 days of daily posting. That\'s your first goal.'},
+{tip:'Post a free teaser to Fanvue itself too — the algorithm surfaces free content to non-subscribers. It\'s your best conversion tool on the platform itself, not just TikTok/IG.'}
+],dl:[{l:'Monetization Setup Guide (.pdf)',h:'https://whop.com/vaultlabs/full-system-00/'}],
+chapters:[{t:'Fanvue setup walkthrough',d:'01:30'},{t:'Subscription pricing strategy',d:'01:00'},{t:'Traffic from free platforms',d:'01:20'},{t:'First 30-day game plan',d:'01:00'}]}
 ];
 
-function selectModule(btn, idx){
-  document.querySelectorAll('.module-btn').forEach(b=>b.classList.remove('active'));
+function buildSteps(steps){
+  if(!steps||!steps.length)return'';
+  let html=`<div class="step-section"><h4>Step-by-step</h4>`;
+  steps.forEach(s=>{
+    if(s.code){html+=`<div class="code-box">${s.code}</div>`;return}
+    if(s.tip){html+=`<div class="tip-box">${TIPSVG}<p>${s.tip}</p></div>`;return}
+    if(s.warn){html+=`<div class="warn-box">${WSVG}<p>${s.warn}</p></div>`;return}
+    if(s.vid){html+=`<div class="video-todo">${VSVG}<p>${s.vid}</p></div>`;return}
+    html+=`<div class="step-block"><div class="step-head"><span class="step-num">${s.n}</span><span>${s.t}</span></div>${s.note?`<p class="step-note">${s.note}</p>`:''}</div>`;
+  });
+  return html+'</div>';
+}
+
+function selectMod(btn,idx){
+  document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const m = modules[idx];
-  document.getElementById('lesson-breadcrumb').textContent = 'Module ' + m.num + ' · ' + m.category;
-  document.getElementById('lesson-title').innerHTML = m.title;
-  document.getElementById('lesson-dur').textContent = m.dur;
-  document.getElementById('lesson-category').textContent = m.category;
-  document.getElementById('lesson-desc').textContent = m.desc;
-
-  const pts = document.getElementById('lesson-points');
-  pts.innerHTML = m.points.map(p=>'<li>'+p+'</li>').join('');
-
-  const dlRow = document.getElementById('downloads-row');
-  const dlHeading = document.getElementById('dl-heading');
-  if(m.downloads.length){
-    dlHeading.style.display='';
-    dlRow.innerHTML = m.downloads.map(d=>`
-      <a href="${d.href}" target="_blank" class="dl-btn">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        ${d.label}
-      </a>
-    `).join('');
-  } else {
-    dlHeading.style.display='none';
-    dlRow.innerHTML='<span style="font-size:13px;color:var(--muted)">No downloads for this module.</span>';
-  }
-
-  const chList = document.getElementById('chapter-list');
-  chList.innerHTML = m.chapters.map((c,i)=>`
-    <div class="chapter-item ${i===0?'active-ch':''}" onclick="selectChapter(this)">
-      <span class="ch-num">${i+1}</span>
-      <div>
-        <span class="ch-title">${c.t}</span>
-        <span class="ch-dur">${c.d}</span>
-      </div>
-    </div>
-  `).join('');
+  const m=M[idx];
+  document.getElementById('lesson-bc').textContent=`Module ${m.num} · ${m.cat}`;
+  document.getElementById('lesson-title').innerHTML=m.title;
+  document.getElementById('lesson-dur').textContent=m.dur;
+  const ct=document.getElementById('lesson-cat-tag');
+  ct.textContent=m.cat;
+  ct.className='cat-tag '+(CAT[m.cat]||'cat-intro');
+  document.getElementById('lesson-body').innerHTML=`<p class="lesson-desc">${m.desc}</p>`;
+  document.getElementById('lesson-points').innerHTML=m.points.map(p=>`<li>${CHK}${p}</li>`).join('');
+  document.getElementById('steps-section').innerHTML=buildSteps(m.steps);
+  const dlL=document.getElementById('dl-label'),dlR=document.getElementById('dl-row');
+  if(m.dl&&m.dl.length){dlL.style.display='';dlR.innerHTML=m.dl.map(d=>`<a href="${d.h}" target="_blank" class="dl-btn">${DL}${d.l}</a>`).join('');}
+  else{dlL.style.display='none';dlR.innerHTML='<span class="dl-none">No downloads for this module.</span>';}
+  document.getElementById('chapter-list').innerHTML=m.chapters.map((c,i)=>
+    `<div class="ch-item${i===0?' active':''}" onclick="selectCh(this)"><span class="ch-n">${i+1}</span><div class="ch-body"><span class="ch-t">${c.t}</span><span class="ch-d">${c.d}</span></div></div>`
+  ).join('');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function selectChapter(el){
-  document.querySelectorAll('.chapter-item').forEach(c=>c.classList.remove('active-ch'));
-  el.classList.add('active-ch');
-}
+function selectCh(el){document.querySelectorAll('.ch-item').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+selectMod(document.querySelector('.mod-btn'),0);
 </script>
 </body>
 </html>

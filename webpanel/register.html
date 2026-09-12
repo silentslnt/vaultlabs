@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultLabs — Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:#0c0c0c;color:#efefef;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{color:#5b9ef9}
+
+.logo{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:32px;text-align:center}
+.logo span{color:#3b82f6}
+
+.card{width:100%;max-width:420px;background:#131313;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:32px}
+.card h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.card p{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px;line-height:1.6}
+
+.key-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#60a5fa;margin-bottom:24px}
+
+.field{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px;letter-spacing:.03em}
+.label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.label-row label{margin-bottom:0}
+.label-row a{font-size:11px}
+input{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 14px;font-size:14px;font-family:inherit;color:#efefef;outline:none;transition:border-color .15s}
+input:focus{border-color:rgba(59,130,246,.5)}
+input::placeholder{color:rgba(255,255,255,.2)}
+input.key-input{font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+input.key-input::placeholder{text-transform:none;letter-spacing:0}
+
+.btn{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;margin-top:4px}
+.btn:hover{background:#5b9ef9;transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:16px;display:none}
+.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#4ade80;margin-bottom:16px;display:none}
+
+.divider{height:1px;background:rgba(255,255,255,.06);margin:20px 0}
+.footer-links{margin-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.35)}
+.footer-links a{color:rgba(255,255,255,.55)}
+.footer-links a:hover{color:#efefef}
+
+.help-text{font-size:11.5px;color:rgba(255,255,255,.3);margin-top:5px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<a href="../index.html" class="logo">Vault<span>Labs</span></a>
+
+<div class="card">
+  <h1>Create account</h1>
+  <p>A license key is required to register. You receive this after purchasing any VaultLabs product.</p>
+
+  <div class="error" id="error-msg"></div>
+  <div class="success" id="success-msg"></div>
+
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+  </div>
+
+  <div class="field">
+    <label>License Key</label>
+    <input type="text" id="license-key" class="key-input" placeholder="VL-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <p class="help-text">Check your purchase confirmation email for your key. <a href="https://whop.com/vaultlabs/" target="_blank">Buy access →</a></p>
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password">
+  </div>
+
+  <div class="field">
+    <label>Confirm Password</label>
+    <input type="password" id="confirm-password" placeholder="Repeat your password" autocomplete="new-password">
+  </div>
+
+  <button class="btn" id="register-btn" onclick="doRegister()">Create account</button>
+
+  <div class="divider"></div>
+  <div class="footer-links">
+    Already have an account? <a href="login.html">Log in</a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://qmoudajzycshbssdlczg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TACZIaiyoxdTGv4QVoKPRg_Sax_NNAc';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) window.location.href = '../toolkit.html';
+});
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('success-msg').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('success-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('error-msg').style.display = 'none';
+}
+
+async function doRegister() {
+  const email = document.getElementById('email').value.trim();
+  const licenseKey = document.getElementById('license-key').value.trim().toUpperCase();
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm-password').value;
+  const btn = document.getElementById('register-btn');
+
+  if (!email || !licenseKey || !password || !confirm) { showError('Please fill in all fields.'); return; }
+  if (password.length < 8) { showError('Password must be at least 8 characters.'); return; }
+  if (password !== confirm) { showError('Passwords do not match.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+  document.getElementById('error-msg').style.display = 'none';
+
+  try {
+    // Call our Cloudflare Function to validate key + create user
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, licenseKey })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showError(data.error || 'Registration failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Create account';
+      return;
+    }
+
+    // Account created — now sign in
+    const { error: loginError } = await sb.auth.signInWithPassword({ email, password });
+
+    if (loginError) {
+      showSuccess('Account created! Please log in.');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return;
+    }
+
+    showSuccess('Account created! Redirecting...');
+    setTimeout(() => window.location.href = '../toolkit.html', 1500);
+
+  } catch (err) {
+    showError('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  }
+}
+</script>
+</body>
+</html>
