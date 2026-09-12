@@ -490,6 +490,75 @@ footer{
   .pricing-card.bundle{grid-column:1;display:block}
   .nav-links{display:none}
 }
+
+/* ── STATS STRIP ── */
+.stats-strip{display:flex;align-items:center;justify-content:center;gap:0;padding:28px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.stat-item{text-align:center;padding:0 40px;display:flex;flex-direction:column;gap:4px}
+.stat-num{font-size:28px;font-weight:800;color:var(--white);letter-spacing:-.02em}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+.stat-div{width:1px;height:40px;background:var(--border);flex-shrink:0}
+
+/* ── WHO THIS IS FOR ── */
+.for-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;max-width:980px;margin:0 auto}
+.for-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;transition:border-color .2s}
+.for-card:hover{border-color:rgba(59,130,246,.3)}
+.for-icon{font-size:20px;font-weight:800;color:var(--blue);margin-bottom:12px}
+.for-card h3{font-size:15px;font-weight:700;color:var(--white);margin-bottom:10px;line-height:1.4}
+.for-card p{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* ── TRUST BADGES ── */
+.trust-badges{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 20px;margin-top:16px;padding:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;max-width:860px;margin-left:auto;margin-right:auto}
+.trust-badges span{font-size:12px;color:var(--muted);font-weight:500}
+
+/* ── STICKY BAR ── */
+.sticky-bar{position:fixed;bottom:-80px;left:0;right:0;z-index:999;background:rgba(10,10,10,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);transition:bottom .4s cubic-bezier(.4,0,.2,1)}
+.sticky-bar.visible{bottom:0}
+.sticky-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;gap:16px}
+.sticky-left{display:flex;flex-direction:column;gap:2px}
+.sticky-brand{font-size:15px;font-weight:800;color:var(--white)}
+.sticky-desc{font-size:12px;color:var(--muted)}
+.sticky-btn{background:var(--blue);color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;text-decoration:none;white-space:nowrap;transition:background .2s}
+.sticky-btn:hover{background:#2563eb}
+@media(max-width:700px){.stats-strip{flex-wrap:wrap;gap:20px}.stat-div{display:none}.for-grid{grid-template-columns:1fr}.sticky-left{display:none}}
+
+/* ── DRAG GALLERY ── */
+.drag-gallery{overflow:hidden;cursor:grab;user-select:none;margin:0 -24px;position:relative}
+.drag-gallery.dragging{cursor:grabbing}
+.drag-gallery-track{display:flex;gap:12px;padding:0 24px;width:max-content}
+.drag-gallery-track img,.drag-gallery-track video{height:340px;width:auto;border-radius:14px;border:1px solid var(--border);flex-shrink:0;object-fit:cover;pointer-events:none;display:block}
+.drag-gallery::before,.drag-gallery::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:5;pointer-events:none}
+.drag-gallery::before{left:0;background:linear-gradient(to right,#080808,transparent)}
+.drag-gallery::after{right:0;background:linear-gradient(to left,#080808,transparent)}
+
+/* ── MODULE GRID ── */
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:860px;margin:32px auto 0}
+.module-item{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .2s}
+.module-item:hover{border-color:rgba(59,130,246,.4)}
+.module-num{font-size:11px;font-weight:800;color:var(--blue);letter-spacing:.06em;min-width:26px}
+.module-name{font-size:13px;font-weight:600;color:var(--white);flex:1;line-height:1.3}
+.module-dur{font-size:10px;color:var(--muted);font-weight:600;background:rgba(255,255,255,.06);padding:3px 7px;border-radius:4px;white-space:nowrap}
+.module-count-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);color:var(--blue);font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;margin-bottom:20px}
+
+/* ── BEFORE / AFTER ── */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:980px;margin:0 auto}
+.ba-wrap{position:relative;width:100%;height:400px;border-radius:16px;overflow:hidden;cursor:col-resize;touch-action:none;border:1px solid var(--border)}
+.ba-after{position:absolute;inset:0}
+.ba-after img{width:100%;height:100%;object-fit:cover;display:block}
+.ba-before{position:absolute;inset:0;overflow:hidden}
+.ba-before img{position:absolute;top:0;left:0;height:100%;width:auto;min-width:100%;object-fit:cover;display:block}
+.ba-handle{position:absolute;top:0;bottom:0;width:3px;background:rgba(255,255,255,.9);left:50%;transform:translateX(-50%);z-index:5;pointer-events:none}
+.ba-handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:white;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
+.ba-arrows{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;color:#111;font-size:13px;font-weight:900;pointer-events:none;letter-spacing:-1px}
+.ba-label{position:absolute;top:14px;background:rgba(0,0,0,.82);color:white;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:6px;z-index:7;backdrop-filter:blur(8px)}
+.ba-label.left{left:14px}
+.ba-label.right{right:14px}
+.ba-caption{text-align:center;font-size:12px;color:var(--muted);margin-top:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+@media(max-width:700px){
+  .module-grid{grid-template-columns:1fr}
+  .ba-grid{grid-template-columns:1fr}
+  .ba-wrap{height:280px}
+}
 </style>
 </head>
 <body>
@@ -519,7 +588,7 @@ footer{
     <h1>Build your own<br><em>AI influencer.</em></h1>
     <p class="hero-sub">The complete system for creating, running, and monetizing AI characters — workflows, tutorials, and the prompts that actually work.</p>
     <div class="hero-ctas">
-      <a href="#pricing" class="btn btn-blue-lg">Get instant access · $49</a>
+      <a href="#pricing" class="btn btn-blue-lg">Get instant access · from $49</a>
       <a href="#workflows" class="btn btn-outline">See what's inside</a>
     </div>
     <div class="hero-meta">
@@ -531,26 +600,59 @@ footer{
 
     <!-- CAROUSEL — replace src with your AI output images -->
     <div class="hero-carousel">
-      <div class="carousel-card card-far-left">
-        <img src="assets/media/exampleimages/view.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover">
-        <span class="ai-badge">AI Generated</span>
-      </div>
-      <div class="carousel-card card-left">
-        <img src="assets/media/exampleimages/image_scrubbed.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover">
-        <span class="ai-badge">AI Generated</span>
-      </div>
-      <div class="carousel-card card-center">
-        <img src="assets/media/exampleimages/image.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover">
-        <span class="ai-badge">AI Generated</span>
-      </div>
-      <div class="carousel-card card-right">
-        <img src="assets/media/exampleimages/9k.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover">
-        <span class="ai-badge">AI Generated</span>
-      </div>
-      <div class="carousel-card card-far-right">
-        <img src="assets/media/exampleimages/to1.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover">
-        <span class="ai-badge">AI Generated</span>
-      </div>
+      <div class="carousel-card card-far-left"><img src="assets/media/exampleimages/image.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card card-left"><img src="assets/media/exampleimages/view.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card card-center"><img src="assets/media/exampleimages/9k.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card card-right"><img src="assets/media/exampleimages/to1.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card card-far-right"><img src="assets/media/exampleimages/image_scrubbed.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/z_krea_2026-08-31_02-04-56_00001_.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/civitai_image.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/clean_preview_temp_qxwzn_00004_.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/re5.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/awdadadadad.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/dgdfgg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/dgdgdrgdfgdr.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/dgfdgdgdgd.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/drgdgdgdfgdg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/drgdgdgdg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/drgrdgdgdg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/drhdhfdhdrhdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/e4t4ete4terte.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ergegegdfgdgr.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ertegfdgdrgfd.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fdhdhdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fdhrdhdhdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghfhfh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghfhfhf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghfhfhfg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghfhfhfhfg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghfhfhfhfh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fghgfhfhf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fhfhfghgfhfhfh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fhfhfhfhf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fhgfhfhfh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fthfhfhfht.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/fthtfhfhfj.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/gdrgdgrdgdg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ghjgjgjgj.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ghkgkg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/gjghjghjgj.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/gjgjgj.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/gjgjgjg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/hfdhdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/hfdrdhdhdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/hfthfhfgf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/hjgjgjgj.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/rdhdhdfdh.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/retretregerger.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/rgdrgdgdgdg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/rhdhfdhdrhd.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ryty.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/tfjfjfjf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/tgjygjg.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/ftyhfhf.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/574a1ad9c214a6f4c2d68911c2f25e80.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
+      <div class="carousel-card"><img src="assets/media/exampleimages/IMG_4497.webp" alt="AI Generated" style="width:100%;height:100%;object-fit:cover"><span class="ai-badge">AI Generated</span></div>
     </div>
   </div>
 </section>
@@ -558,6 +660,17 @@ footer{
 <!-- ── TAGLINE STRIP ── -->
 <div class="tagline-strip">
   <p><strong>Consistent character. Viral content. Real income.</strong> — The exact system, not a tutorial sampler.</p>
+</div>
+
+<!-- ── STATS STRIP ── -->
+<div class="stats-strip">
+  <div class="stat-item"><span class="stat-num">13</span><span class="stat-label">Modules</span></div>
+  <div class="stat-div"></div>
+  <div class="stat-item"><span class="stat-num">7+</span><span class="stat-label">Plug-and-play workflows</span></div>
+  <div class="stat-div"></div>
+  <div class="stat-item"><span class="stat-num">$0</span><span class="stat-label">Monthly fees</span></div>
+  <div class="stat-div"></div>
+  <div class="stat-item"><span class="stat-num">∞</span><span class="stat-label">Lifetime updates</span></div>
 </div>
 
 <!-- ── TESTIMONIALS ── -->
@@ -594,6 +707,35 @@ footer{
 
       <div class="testi-card">
         <img src="assets/media/proofandresultsimages/Screenshot 2026-08-06 141059.png" alt="Earnings screenshot" style="width:100%;height:100%;object-fit:cover;border-radius:12px;display:block">
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── WHO THIS IS FOR ── -->
+<section class="section--tight">
+  <div class="wrap">
+    <div class="section-header reveal">
+      <h2>Built for people who want results.</h2>
+      <p>Not a general AI course. This is for one specific outcome.</p>
+    </div>
+    <div class="for-grid reveal">
+      <div class="for-card">
+        <div class="for-icon">→</div>
+        <h3>You want to start an AI character account</h3>
+        <p>From zero — picking a character, generating consistent faces, posting content, monetizing. The full path is here.</p>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">→</div>
+        <h3>You're already posting AI content but quality is holding you back</h3>
+        <p>Random outputs, inconsistent faces, videos that don't land. These workflows fix exactly that — production-grade results every time.</p>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">→</div>
+        <h3>You want a system, not tutorial-hopping</h3>
+        <p>Done watching 40 YouTube videos that contradict each other. This is one complete pipeline built by someone who runs active AI character accounts.</p>
       </div>
     </div>
   </div>
@@ -655,6 +797,53 @@ footer{
       </div>
     </div>
 
+    <!-- Drag gallery -->
+    <div class="drag-gallery reveal" style="margin-top:48px" id="wf-gallery">
+      <div class="drag-gallery-track" id="wf-track">
+        <img src="assets/media/exampleimages/view.webp" alt="">
+        <img src="assets/media/exampleimages/image.webp" alt="">
+        <img src="assets/media/exampleimages/9k.webp" alt="">
+        <img src="assets/media/exampleimages/to1.webp" alt="">
+        <img src="assets/media/exampleimages/image_scrubbed.webp" alt="">
+        <img src="assets/media/exampleimages/z_krea_2026-08-31_02-04-56_00001_.webp" alt="">
+        <img src="assets/media/exampleimages/civitai_image.webp" alt="">
+        <img src="assets/media/exampleimages/clean_preview_temp_qxwzn_00004_.webp" alt="">
+        <img src="assets/media/exampleimages/re5.webp" alt="">
+        <video src="assets/media/examplevideos/mainintro3.mp4" autoplay muted loop playsinline></video>
+        <img src="assets/media/exampleimages/awdadadadad.webp" alt="">
+        <img src="assets/media/exampleimages/dgdfgg.webp" alt="">
+      </div>
+    </div>
+
+    <!-- Before/After -->
+    <div style="margin-top:56px" class="reveal">
+      <p style="text-align:center;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:24px">Workflow outputs — before &amp; after</p>
+      <div class="ba-grid">
+        <div>
+          <div class="ba-wrap" data-ba>
+            <div class="ba-after"><img src="assets/media/exampleimages/image.webp" alt="After"></div>
+            <div class="ba-before"><img src="assets/media/exampleimages/image_scrubbed.webp" alt="Before"></div>
+            <div class="ba-handle"></div>
+            <span class="ba-arrows">⟨ ⟩</span>
+            <span class="ba-label left">Before</span>
+            <span class="ba-label right">After</span>
+          </div>
+          <p class="ba-caption">Skin Enhance &amp; Upscale</p>
+        </div>
+        <div>
+          <div class="ba-wrap" data-ba>
+            <div class="ba-after"><img src="assets/media/exampleimages/view.webp" alt="After"></div>
+            <div class="ba-before"><img src="assets/media/exampleimages/9k.webp" alt="Before"></div>
+            <div class="ba-handle"></div>
+            <span class="ba-arrows">⟨ ⟩</span>
+            <span class="ba-label left">Before</span>
+            <span class="ba-label right">After</span>
+          </div>
+          <p class="ba-caption">Face Swap Example</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Full workflow checklist -->
     <div class="workflow-checklist reveal" style="margin-top:56px">
       <ul>
@@ -681,26 +870,31 @@ footer{
       <p>A year of trial and error compressed into modules you can follow in one sitting.</p>
     </div>
 
-    <!-- Replace with real webpanel screenshot -->
-    <div class="tutorial-preview reveal">
-      <img src="assets/media/workflowsetupexamples/runpodsetupreference.png" alt="Workflow setup" style="width:100%;border-radius:14px;display:block">
+    <div class="tutorial-preview reveal" style="margin-bottom:40px">
+      <img src="assets/media/workflowsetupexamples/runpodsetupreference.png" alt="Workflow setup" style="width:100%;border-radius:14px;display:block;border:1px solid var(--border)">
     </div>
 
-    <ul class="tutorial-list reveal">
-      <li><span class="check-icon">✓</span>Welcome &amp; orientation</li>
-      <li><span class="check-icon">✓</span>ComfyUI setup (local + cloud)</li>
-      <li><span class="check-icon">✓</span>RunPod cloud GPU guide</li>
-      <li><span class="check-icon">✓</span>Installing models correctly</li>
-      <li><span class="check-icon">✓</span>Krea2 image generation</li>
-      <li><span class="check-icon">✓</span>Creating your character</li>
-      <li><span class="check-icon">✓</span>Dataset generation</li>
-      <li><span class="check-icon">✓</span>Training your LoRA</li>
-      <li><span class="check-icon">✓</span>Video generation</li>
-      <li><span class="check-icon">✓</span>Motion control</li>
-      <li><span class="check-icon">✓</span>Prompting system &amp; library</li>
-      <li><span class="check-icon">✓</span>Skin enhancing &amp; upscaling</li>
-      <li><span class="check-icon">✓</span>Content strategy &amp; posting SOP</li>
-    </ul>
+    <div style="text-align:center" class="reveal">
+      <div class="module-count-tag">13 modules · included with every purchase</div>
+    </div>
+
+    <div class="module-grid reveal">
+      <div class="module-item"><span class="module-num">00</span><span class="module-name">Welcome &amp; Orientation</span><span class="module-dur">01:58</span></div>
+      <div class="module-item"><span class="module-num">01</span><span class="module-name">How to Install ComfyUI</span><span class="module-dur">05:30</span></div>
+      <div class="module-item"><span class="module-num">02</span><span class="module-name">ComfyUI Basics</span><span class="module-dur">08:12</span></div>
+      <div class="module-item"><span class="module-num">03</span><span class="module-name">Generating Your Character</span><span class="module-dur">05:12</span></div>
+      <div class="module-item"><span class="module-num">04</span><span class="module-name">Generating a Dataset</span><span class="module-dur">05:11</span></div>
+      <div class="module-item"><span class="module-num">05</span><span class="module-name">Training a LoRA</span><span class="module-dur">03:08</span></div>
+      <div class="module-item"><span class="module-num">06</span><span class="module-name">Generating Images (Krea2)</span><span class="module-dur">06:32</span></div>
+      <div class="module-item"><span class="module-num">07</span><span class="module-name">Editing &amp; Skin Enhancing</span><span class="module-dur">07:12</span></div>
+      <div class="module-item"><span class="module-num">08</span><span class="module-name">Motion Control</span><span class="module-dur">06:46</span></div>
+      <div class="module-item"><span class="module-num">09</span><span class="module-name">Dataset Generator 2.0</span><span class="module-dur">06:20</span></div>
+      <div class="module-item"><span class="module-num">10</span><span class="module-name">Training a LoRA (Krea2)</span><span class="module-dur">12:44</span></div>
+      <div class="module-item"><span class="module-num">11</span><span class="module-name">Prompting System &amp; Library</span><span class="module-dur">04:18</span></div>
+      <div class="module-item"><span class="module-num">12</span><span class="module-name">Content Strategy &amp; Posting SOP</span><span class="module-dur">05:44</span></div>
+    </div>
+
+    <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:24px" class="reveal">+ New modules added as the pipeline evolves</p>
   </div>
 </section>
 
@@ -885,6 +1079,13 @@ footer{
     <p class="pricing-meta" style="margin-top:24px">
       <strong>Limited time pricing.</strong> Price increases as more content is added.
     </p>
+    <div class="trust-badges reveal">
+      <span>⚡ Instant delivery via Whop</span>
+      <span>🔒 Secure checkout</span>
+      <span>♾ Lifetime access</span>
+      <span>🚫 No monthly fees</span>
+      <span>💬 Discord support included (Full System)</span>
+    </div>
   </div>
 </section>
 
@@ -942,6 +1143,17 @@ footer{
     </div>
   </div>
 </section>
+
+<!-- ── STICKY BUY BAR ── -->
+<div class="sticky-bar" id="sticky-bar">
+  <div class="sticky-inner wrap">
+    <div class="sticky-left">
+      <span class="sticky-brand">VaultLabs</span>
+      <span class="sticky-desc">Complete AI influencer system · from $49</span>
+    </div>
+    <a href="https://whop.com/vaultlabs/full-system-00/" class="sticky-btn">Get Full System — $179 →</a>
+  </div>
+</div>
 
 <!-- ── FOOTER ── -->
 <footer>
@@ -1004,19 +1216,83 @@ const observer = new IntersectionObserver((entries)=>{
 },{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 
+/* ── STICKY BAR ── */
+(function(){
+  const bar = document.getElementById('sticky-bar');
+  const hero = document.querySelector('.hero');
+  if(!bar||!hero) return;
+  const io = new IntersectionObserver(entries=>{
+    bar.classList.toggle('visible', !entries[0].isIntersecting);
+  },{threshold:0});
+  io.observe(hero);
+})();
+
+/* ── DRAG GALLERY ── */
+(function(){
+  document.querySelectorAll('.drag-gallery').forEach(gallery=>{
+    const track = gallery.querySelector('.drag-gallery-track');
+    let isDown=false,startX=0,scrollLeft=0;
+    gallery.addEventListener('mousedown',e=>{isDown=true;gallery.classList.add('dragging');startX=e.pageX-gallery.offsetLeft;scrollLeft=track.style.transform?parseFloat(track.style.transform.replace('translateX(',''))||0:0});
+    window.addEventListener('mouseup',()=>{isDown=false;gallery.classList.remove('dragging')});
+    gallery.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-gallery.offsetLeft;const walk=(x-startX)*1.2;track._x=(scrollLeft+walk);const maxScroll=-(track.scrollWidth-gallery.offsetWidth+48);track._x=Math.max(maxScroll,Math.min(0,track._x));track.style.transform=`translateX(${track._x}px)`});
+    track._x=0;
+  });
+})();
+
+/* ── BEFORE/AFTER SLIDERS ── */
+(function(){
+  document.querySelectorAll('[data-ba]').forEach(wrap=>{
+    const before=wrap.querySelector('.ba-before');
+    const handle=wrap.querySelector('.ba-handle');
+    const arrows=wrap.querySelector('.ba-arrows');
+    let dragging=false;
+    function setPos(pct){
+      pct=Math.max(5,Math.min(95,pct));
+      before.style.width=pct+'%';
+      handle.style.left=pct+'%';
+      if(arrows)arrows.style.left=pct+'%';
+    }
+    setPos(50);
+    wrap.addEventListener('mousedown',e=>{dragging=true;e.preventDefault()});
+    window.addEventListener('mouseup',()=>{dragging=false});
+    window.addEventListener('mousemove',e=>{
+      if(!dragging)return;
+      const r=wrap.getBoundingClientRect();
+      setPos(((e.clientX-r.left)/r.width)*100);
+    });
+    wrap.addEventListener('touchstart',e=>{dragging=true},{passive:true});
+    window.addEventListener('touchend',()=>{dragging=false});
+    window.addEventListener('touchmove',e=>{
+      if(!dragging)return;
+      const r=wrap.getBoundingClientRect();
+      setPos(((e.touches[0].clientX-r.left)/r.width)*100);
+    },{passive:true});
+  });
+})();
+
 /* ── HERO CAROUSEL AUTO-ROTATE ── */
 (function(){
   const positions = ['card-far-left','card-left','card-center','card-right','card-far-right'];
   const cards = Array.from(document.querySelectorAll('.hero-carousel .carousel-card'));
-  if(cards.length !== 5) return;
+  const n = cards.length;
+  if(n < 5) return;
   let offset = 0;
   function applyPositions(){
     cards.forEach((card, i) => {
       positions.forEach(p => card.classList.remove(p));
-      card.classList.add(positions[(i + offset) % 5]);
+      card.style.opacity='';
+      card.style.pointerEvents='';
+      const slot = (i - offset % n + n) % n;
+      if(slot < 5){
+        card.classList.add(positions[slot]);
+      } else {
+        card.style.opacity='0';
+        card.style.pointerEvents='none';
+      }
     });
   }
-  setInterval(()=>{ offset = (offset + 1) % 5; applyPositions(); }, 2800);
+  applyPositions();
+  setInterval(()=>{ offset = (offset + 1) % n; applyPositions(); }, 2800);
 })();
 </script>
 </body>
