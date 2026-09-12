@@ -14,6 +14,7 @@ vaultlabs/
   toolkit.html        — full course (17 modules, auth-gated preview)
   privacy.html
   terms.html
+  refund.html
   assets/
   webpanel/
     login.html        — Supabase email+password login
@@ -89,15 +90,26 @@ Monetization platform: **Stacked** (not Fanvue — all references updated)
 ## toolkit.html
 - Full dark theme: `--bg:#0c0c0c`, `--surface:#131313`, `--surface-2:#1a1a1a`, `--border:rgba(255,255,255,.07)`, `--blue:#3b82f6`
 - 17 modules (00–16): Intro → Hardware → RunPod Setup → Install ComfyUI → ComfyUI Manager → Navigating ComfyUI → Models → Character Gen → Dataset → LoRA Training → Production Images → Skin Enhance → Prompting → MiniMax Video → SCAIL Video → Content Strategy → Monetization
-- Preview mode: non-logged-in users see full module structure + preview banner, no hard redirect
-- Auth gate at top: checks Supabase session, shows member badge or preview banner
+- Preview mode: non-logged-in users see title + description + "What's Covered" bullets as teaser
+- Steps section: non-members see blurred placeholder rows + gate overlay — real step HTML NEVER in DOM (inspect-element proof)
+- Members: see all steps + "Mark as complete" button per module
+- Progress bar in sidebar (localStorage key `vl_completed_v1`) — shows "X / 17 completed" with green fill
+- Green checkmark on completed module sidebar buttons
+- Owned badges: reads `session.user.user_metadata.product`, shows green "Owned" pill on matching sidebar buttons
+- Full System owners: sidebar footer replaced with "✓ Full System — All Access" green panel
+- GET ACCESS bar + sidebar buy links hidden for all logged-in members
+- Auth timing: `_onAuthReady` / `_vlLoggedIn` pattern — all DOM manipulation deferred to `applyAuthUI()` called after full body parsed
+- Topbar: "Join the Discord" button (purple, Discord SVG icon) + "Get Full Access — $179" CTA
 - RunPod referral added in Module 01 (step 3) and Module 02 (step 1)
 - All Fanvue references replaced with Stacked throughout
-- "Explore Toolkit" button added to index.html hero
 
 ## index.html
 - Dark theme: bg #0c0c0c
 - Hero CTAs: "Get instant access · from $49" + "Explore Toolkit" (links to toolkit.html)
+- Stats strip numbers (13, 7+, $0, ∞) use `var(--blue)` color
+- Sticky bar text: "The complete AI influencer system" (no "from $49")
+- Footer: multi-column layout — brand/tagline/email left, Product + Legal columns right, bottom bar with copyright + tagline
+- Footer links: Toolkit, Pricing, FAQ, Discord, Privacy Policy, Terms of Service, Refund Policy
 
 ## Current Theme (Dark)
 - bg: #0c0c0c, surface: #131313, surface-2: #1a1a1a
@@ -128,7 +140,27 @@ Monetization platform: **Stacked** (not Fanvue — all references updated)
 - krea2 depth controlnet: https://huggingface.co/Patil/Krea-2-depth-controlnet/resolve/main/krea2_depth_controlnet.safetensors
 - LTX FaceID: https://huggingface.co/Alissonerdx/LTX-Best-Face-ID/resolve/main/Best_FaceID_v1.0_LoRA.safetensors
 
+## Supabase license_keys Table
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid | PK |
+| key | text | VL-XXXX-XXXX-XXXX format |
+| used | bool | false until registration |
+| used_by_email | text | buyer email |
+| created_at | timestamptz | auto |
+| used_at | timestamptz | set on register |
+| product | text, nullable | image_kit / motion_control / scail_video / full_system |
+
+RLS enabled — no client-side access. product column added manually via Supabase UI.
+
+## Whop Webhook Notes
+- Non-POST requests return 200 OK (fixes Whop endpoint verification ping)
+- Signature verified with HMAC-SHA256 timing-safe comparison
+- product extracted from plan.name, normalized via productMap
+- Duplicate detection: if email already has a key, webhook is skipped
+
 ## Pending / TODO
-- User to add demo videos to toolkit.html video placeholder slots
-- Add Cloudflare rate limiting rule: Security → Rate limiting rules → /api/ path → 10 req/10s → Block
-- Test full purchase flow end to end (Whop test purchase → webhook → email → claim → register)
+- Record 17 tutorial videos (start with Module 07 — Creating Your AI Character)
+- Adjust images on index.html to your liking
+- Test full purchase flow end to end (Whop free access pass → webhook → email → claim → register)
+- Cloudflare WAF rule already set: /api/ path → 10 req/10s → Block
