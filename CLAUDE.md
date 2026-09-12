@@ -99,7 +99,8 @@ Monetization platform: **Stacked** (not Fanvue — all references updated)
 - Full System owners: sidebar footer replaced with "✓ Full System — All Access" green panel
 - GET ACCESS bar + sidebar buy links hidden for all logged-in members
 - Auth timing: `_onAuthReady` / `_vlLoggedIn` pattern — all DOM manipulation deferred to `applyAuthUI()` called after full body parsed
-- Topbar: "Join the Discord" button (purple, Discord SVG icon) + "Get Full Access — $179" CTA
+- Topbar: "Join the Discord" button (purple `#5865f2`, Discord SVG icon, href discord.gg/rkAmUvuMJZ) + "Get Full Access — $179" CTA
+- Steps gate card: shows 4 benefit pills to non-members — "No GPU needed", "img2prompt included", "One-time payment", "Lifetime updates"
 - RunPod referral added in Module 01 (step 3) and Module 02 (step 1)
 - All Fanvue references replaced with Stacked throughout
 
@@ -110,6 +111,10 @@ Monetization platform: **Stacked** (not Fanvue — all references updated)
 - Sticky bar text: "The complete AI influencer system" (no "from $49")
 - Footer: multi-column layout — brand/tagline/email left, Product + Legal columns right, bottom bar with copyright + tagline
 - Footer links: Toolkit, Pricing, FAQ, Discord, Privacy Policy, Terms of Service, Refund Policy
+- Benefits strip (`.benefits-strip`, dark `#0c0c0c` background): 3×2 grid placed before pricing section
+  - No GPU required | Your character consistent forever | Image→video full pipeline
+  - img2prompt built in (competitors charge $5/month) | Dataset generator included | One payment lifetime updates
+- Coming Soon section (light `#f9f9f9` background): RapidCache teaser — 30-60 min → Under 2 min, Discord early access CTA
 
 ## Current Theme (Dark)
 - bg: #0c0c0c, surface: #131313, surface-2: #1a1a1a

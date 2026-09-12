@@ -477,6 +477,14 @@ footer{padding:64px 0 0;border-top:1px solid rgba(255,255,255,.07);background:#0
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ── RESPONSIVE ── */
+.benefits-strip{background:#0c0c0c;padding:80px 0}
+.benefits-strip .section-label{text-align:center;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:48px}
+.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden}
+.benefit-card{background:#0c0c0c;padding:32px 28px}
+.benefit-icon{width:36px;height:36px;background:rgba(59,130,246,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#3b82f6}
+.benefit-card h3{font-size:15px;font-weight:700;color:#efefef;margin-bottom:8px;letter-spacing:-.01em}
+.benefit-card p{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6}
+.benefit-tag{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.1);padding:3px 8px;border-radius:4px;letter-spacing:.03em}
 @media(max-width:768px){
   .section{padding:70px 0}
   .hero{padding:120px 0 70px}
@@ -489,6 +497,7 @@ footer{padding:64px 0 0;border-top:1px solid rgba(255,255,255,.07);background:#0
   .testimonials-grid,.workflows-grid,.results-grid,.tutorial-list{grid-template-columns:1fr}
   .pricing-grid{grid-template-columns:1fr}
   .pricing-card.bundle{grid-column:1;display:block}
+  .benefits-grid{grid-template-columns:1fr}
   .nav-links{display:none}
 }
 
@@ -963,6 +972,59 @@ footer{padding:64px 0 0;border-top:1px solid rgba(255,255,255,.07);background:#0
 
 <div class="divider"></div>
 
+<!-- ── BENEFITS ── -->
+<section class="benefits-strip">
+  <div class="wrap">
+    <p class="section-label">What you actually get</p>
+    <div class="benefits-grid reveal">
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3>No GPU required</h3>
+        <p>Everything runs on cloud GPU via RunPod. Mac, low-spec laptop, anything works. You only pay when actually generating — ~$0.30–$0.50/hr.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg>
+        </div>
+        <h3>Your character, consistent forever</h3>
+        <p>You train a LoRA on your own AI character. Same face, same vibe, every generation — not random AI girls, your own model you own.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        </div>
+        <h3>Image → video, full pipeline</h3>
+        <p>Generate the image, animate it with MiniMax or SCAIL-2, post it. Most courses stop at image gen. This covers the whole content workflow.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>img2prompt built in</h3>
+        <p>Reverse-engineer any image into a prompt instantly — baked into the workflow. Competitors charge $5/month for this as a standalone Chrome extension.</p>
+        <span class="benefit-tag">Included free</span>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        </div>
+        <h3>Dataset generator included</h3>
+        <p>The hardest part of LoRA training is building a clean dataset. A dedicated workflow handles it for you — no manual curation or external tools needed.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <h3>One payment, lifetime updates</h3>
+        <p>AI models change every few months. Every new workflow, new model integration, new technique gets added to your toolkit — no subscription ever.</p>
+        <span class="benefit-tag">No subscription</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── PRICING ── -->
 <section class="section" id="pricing">
   <div class="wrap">
@@ -1133,6 +1195,27 @@ footer{padding:64px 0 0;border-top:1px solid rgba(255,255,255,.07);background:#0
         <div class="faq-answer">Full System includes access to the VaultLabs Discord community for support. You can also join the Discord at <a href="https://discord.gg/rkAmUvuMJZ" target="_blank" style="color:var(--blue)">discord.gg/rkAmUvuMJZ</a>. The tutorials are built to cover the exact issues people run into — most answers are already in the content.</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ── COMING SOON ── -->
+<section style="padding:80px 0;border-top:1px solid rgba(0,0,0,.07);background:#f9f9f9">
+  <div class="wrap" style="text-align:center">
+    <span style="display:inline-block;background:rgba(59,130,246,.1);color:#3b82f6;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:16px">Coming Soon</span>
+    <h2 style="font-size:32px;font-weight:800;letter-spacing:-.02em;color:#0a0a0a;margin-bottom:12px">RapidCache — Instant pod startup</h2>
+    <p style="font-size:16px;color:#666;max-width:520px;margin:0 auto 32px;line-height:1.6">Skip the 30–60 min model download. Pre-cached RunPod volumes that mount in seconds — same models, fresh pod, ready instantly.</p>
+    <div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:36px">
+      <div style="text-align:center">
+        <div style="font-size:28px;font-weight:800;color:#0a0a0a">30–60 min</div>
+        <div style="font-size:13px;color:#999;margin-top:4px">Standard setup</div>
+      </div>
+      <div style="font-size:28px;font-weight:300;color:#ccc;align-self:center">→</div>
+      <div style="text-align:center">
+        <div style="font-size:28px;font-weight:800;color:#3b82f6">Under 2 min</div>
+        <div style="font-size:13px;color:#999;margin-top:4px">With RapidCache</div>
+      </div>
+    </div>
+    <a href="https://discord.gg/rkAmUvuMJZ" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;text-decoration:none">Join Discord to get early access</a>
   </div>
 </section>
 
