@@ -69,8 +69,8 @@ export async function onRequestPost(context) {
     'Content-Type': 'application/json',
   };
 
-  // 1. Check license key exists and is unused
-  const keyUrl = `${SUPABASE_URL}/rest/v1/license_keys?key=eq.${encodeURIComponent(normalizedKey)}&used=eq.false&select=id`;
+  // 1. Check license key exists and is unused — also fetch product
+  const keyUrl = `${SUPABASE_URL}/rest/v1/license_keys?key=eq.${encodeURIComponent(normalizedKey)}&used=eq.false&select=id,product`;
   const keyRes = await fetch(keyUrl, { headers });
   const keys = await keyRes.json();
 
@@ -79,12 +79,18 @@ export async function onRequestPost(context) {
   }
 
   const keyId = keys[0].id;
+  const product = keys[0].product || 'full_system';
 
-  // 2. Create the user in Supabase Auth
+  // 2. Create the user in Supabase Auth — store product in user metadata
   const userRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ email, password, email_confirm: true }),
+    body: JSON.stringify({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { product },
+    }),
   });
 
   const userData = await userRes.json();

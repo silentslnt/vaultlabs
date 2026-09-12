@@ -682,6 +682,45 @@ function applyAuthUI(){
     if(signout)signout.style.display='inline-block';
     const buyCta=document.getElementById('topbar-cta-buy');
     if(buyCta)buyCta.style.display='none';
+    // Show owned badges on sidebar workflow buttons
+    const product=session.user?.user_metadata?.product||'';
+    const owns={
+      image_kit: ['image_kit','full_system'].includes(product),
+      motion_control: ['motion_control','full_system'].includes(product),
+      scail_video: ['scail_video','full_system'].includes(product),
+    };
+    const dlBtns=document.querySelectorAll('.dl-side-btn');
+    // buttons order: image kit, motion control, scail-2, full system
+    const owned_labels=[
+      owns.image_kit,
+      owns.motion_control,
+      owns.scail_video,
+      true, // full system link always shown
+    ];
+    dlBtns.forEach((btn,i)=>{
+      if(owned_labels[i]){
+        btn.style.color='#4ade80';
+        btn.style.borderColor='rgba(34,197,94,.2)';
+        btn.style.background='rgba(34,197,94,.07)';
+        const label=btn.querySelector('span')||btn;
+        // add owned pill if not already there
+        if(!btn.querySelector('.owned-pill')){
+          const pill=document.createElement('span');
+          pill.className='owned-pill';
+          pill.textContent='Owned';
+          pill.style.cssText='font-size:9px;font-weight:700;background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25);border-radius:4px;padding:1px 5px;margin-left:auto;letter-spacing:.03em';
+          btn.appendChild(pill);
+        }
+      }
+    });
+    // For members: change video lock to "coming soon" instead of "Unlock Full Access"
+    const vl=document.querySelector('.video-lock');
+    if(vl){
+      vl.innerHTML=`
+        <div class="lock-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+        <h3 style="color:rgba(255,255,255,.7)">Video being added</h3>
+        <p style="color:rgba(255,255,255,.4);font-size:12px">Lesson video coming soon. The step-by-step guide below covers everything in the meantime.</p>`;
+    }
   }
 }
 

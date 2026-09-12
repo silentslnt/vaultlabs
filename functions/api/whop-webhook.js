@@ -77,6 +77,26 @@ export async function onRequestPost(context) {
     event?.user?.email ||
     null;
 
+  // Extract product name from Whop payload
+  const productRaw =
+    event?.data?.plan?.name ||
+    event?.data?.membership?.plan?.name ||
+    event?.data?.product?.name ||
+    event?.data?.plan?.product?.name ||
+    null;
+  // Normalize to our internal keys
+  const productMap = {
+    'krea2 image kit': 'image_kit',
+    'motion control': 'motion_control',
+    'video motion control': 'motion_control',
+    'scail-2 video': 'scail_video',
+    'scail-2 video motion control': 'scail_video',
+    'full system': 'full_system',
+  };
+  const product = productRaw
+    ? (productMap[productRaw.toLowerCase()] || productRaw.toLowerCase().replace(/\s+/g,'_'))
+    : 'full_system'; // default to full_system if unknown
+
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     // Log without exposing payload contents
     console.error('Whop webhook: no valid email in event type', eventType);
@@ -106,7 +126,7 @@ export async function onRequestPost(context) {
   const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/license_keys`, {
     method: 'POST',
     headers: sbHeaders,
-    body: JSON.stringify({ key, used: false, used_by_email: email, used_at: null }),
+    body: JSON.stringify({ key, used: false, used_by_email: email, used_at: null, product }),
   });
 
   if (!insertRes.ok) {
