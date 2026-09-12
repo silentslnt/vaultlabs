@@ -452,17 +452,22 @@ input[type=range]::-webkit-slider-thumb{
 .faq-item.open .faq-answer{max-height:300px;padding:0 24px 20px}
 
 /* ── FOOTER ── */
-footer{
-  padding:60px 0 40px;
-  border-top:1px solid var(--border);
-  text-align:center;
-}
-.footer-logo{font-size:20px;font-weight:800;color:#0a0a0a;margin-bottom:16px}
+footer{padding:64px 0 0;border-top:1px solid var(--border)}
+.footer-top{display:flex;gap:64px;margin-bottom:48px;flex-wrap:wrap}
+.footer-brand{flex:0 0 220px}
+.footer-logo{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
 .footer-logo span{color:var(--blue)}
-.footer-links{display:flex;justify-content:center;gap:28px;margin-bottom:24px;flex-wrap:wrap}
-.footer-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
-.footer-links a:hover{color:var(--white)}
-.footer-copy{font-size:12px;color:#3a3a3a}
+.footer-tagline{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.footer-contact{display:flex;flex-direction:column;gap:5px}
+.footer-contact a{font-size:13px;color:var(--blue);text-decoration:none;transition:opacity .15s}
+.footer-contact a:hover{opacity:.75}
+.footer-cols{display:flex;gap:48px;flex:1;flex-wrap:wrap}
+.footer-col h4{font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:14px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;margin-bottom:10px;transition:color .15s}
+.footer-col a:hover{color:#efefef}
+.footer-bottom{border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+.footer-copy-right{font-size:12px;color:rgba(255,255,255,.25)}
 
 /* ── DIVIDER ── */
 .divider{height:1px;background:var(--border);margin:0}
@@ -512,7 +517,7 @@ footer{
 .sticky-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;gap:16px}
 .sticky-left{display:flex;flex-direction:column;gap:2px}
 .sticky-brand{font-size:15px;font-weight:800;color:var(--white)}
-.sticky-desc{font-size:12px;color:var(--muted)}
+.sticky-desc{font-size:12px;color:rgba(255,255,255,.45)}
 .sticky-btn{background:var(--blue);color:#fff;font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;text-decoration:none;white-space:nowrap;transition:background .2s}
 .sticky-btn:hover{background:#2563eb}
 @media(max-width:700px){.stats-strip{flex-wrap:wrap;gap:20px}.stat-div{display:none}.for-grid{grid-template-columns:1fr}.sticky-left{display:none}}
@@ -1136,7 +1141,7 @@ footer{
   <div class="sticky-inner wrap">
     <div class="sticky-left">
       <span class="sticky-brand">VaultLabs</span>
-      <span class="sticky-desc">Complete AI influencer system · from $49</span>
+      <span class="sticky-desc">The complete AI influencer system</span>
     </div>
     <a href="https://whop.com/vaultlabs/full-system-00/" class="sticky-btn">Get Full System — $179 →</a>
   </div>
@@ -1145,14 +1150,34 @@ footer{
 <!-- ── FOOTER ── -->
 <footer>
   <div class="wrap">
-    <div class="footer-logo">Vault<span>Labs</span></div>
-    <div class="footer-links">
-      <a href="https://discord.gg/rkAmUvuMJZ" target="_blank">Discord</a>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="terms.html">Terms of Service</a>
-      <a href="mailto:hello@vaultlabs.dev">Contact</a>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">Vault<span>Labs</span></div>
+        <p class="footer-tagline">The AI influencer toolkit. Build, train, and monetize your AI character.</p>
+        <div class="footer-contact">
+          <a href="mailto:hello@vaultlabs.dev">hello@vaultlabs.dev</a>
+        </div>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="toolkit.html">Toolkit</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQ</a>
+          <a href="https://discord.gg/rkAmUvuMJZ" target="_blank">Discord</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="refund.html">Refund Policy</a>
+        </div>
+      </div>
     </div>
-    <p class="footer-copy">© 2026 VaultLabs. All rights reserved.</p>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 VaultLabs. All rights reserved.</p>
+      <p class="footer-copy-right">Built for creators who'd rather own than rent.</p>
+    </div>
   </div>
 </footer>
 
