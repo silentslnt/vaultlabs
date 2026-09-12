@@ -571,6 +571,7 @@ footer{
       <a href="#tutorials">Tutorials</a>
       <a href="#results">Results</a>
       <a href="#pricing">Pricing</a>
+      <a href="toolkit.html" style="color:var(--blue);font-weight:600">Toolkit →</a>
     </div>
     <a href="#pricing" class="btn btn-blue">Get Access</a>
   </div>
@@ -874,6 +875,13 @@ footer{
     </div>
 
     <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:24px" class="reveal">+ New modules added as the pipeline evolves</p>
+
+    <div style="text-align:center;margin-top:40px" class="reveal">
+      <a href="toolkit.html" class="btn btn-blue-lg" style="gap:8px">
+        Explore the toolkit →
+      </a>
+      <p style="margin-top:12px;font-size:12px;color:var(--muted)">Preview all modules, workflows, and downloads in one place</p>
+    </div>
   </div>
 </section>
 
@@ -892,13 +900,13 @@ footer{
         <button class="gpu-tab" onclick="switchTab(this,'mac')">Mac / Apple Silicon</button>
       </div>
       <div class="gpu-body">
-        <div class="slider-row">
-          <label>GPU VRAM <span id="vram-val">8 GB</span></label>
+        <div class="slider-row" id="vram-row">
+          <label><span id="vram-label">GPU VRAM</span> <span id="vram-val">8 GB</span></label>
           <input type="range" id="vram-slider" min="2" max="32" step="2" value="8" oninput="updateGpu()">
           <div class="slider-marks"><span>2</span><span>8</span><span>16</span><span>24</span><span>32</span></div>
         </div>
         <div class="slider-row">
-          <label>System RAM <span id="ram-val">16 GB</span></label>
+          <label><span id="ram-label">System RAM</span> <span id="ram-val">16 GB</span></label>
           <input type="range" id="ram-slider" min="8" max="128" step="8" value="16" oninput="updateGpu()">
           <div class="slider-marks"><span>8</span><span>32</span><span>64</span><span>96</span><span>128</span></div>
         </div>
@@ -1182,9 +1190,44 @@ function updateGpu(){
   }
 }
 
+let currentTab = 'nvidia';
 function switchTab(btn, tab){
   document.querySelectorAll('.gpu-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
+  currentTab = tab;
+  if(tab === 'mac'){
+    document.getElementById('vram-row').style.display='none';
+    document.getElementById('ram-label').textContent='Unified Memory';
+    const ram = parseInt(document.getElementById('ram-slider').value);
+    document.getElementById('vram-val').textContent = ram + ' GB unified';
+    const dot = document.getElementById('status-dot');
+    const title = document.getElementById('gpu-title');
+    const desc = document.getElementById('gpu-desc');
+    if(ram >= 64){
+      dot.className='status-dot green';
+      title.textContent='Capable — run everything locally on Apple Silicon.';
+      desc.textContent='With '+ram+' GB unified memory you can run image workflows, video generation, and LoRA training locally via Metal. RunPod is optional for speed.';
+    } else if(ram >= 32){
+      dot.className='status-dot yellow';
+      title.textContent='Good for images — use RunPod for video & LoRA training.';
+      desc.textContent='With '+ram+' GB unified memory you can run Krea2 image workflows locally. Video generation and LoRA training will be slow — RunPod at ~$0.30/hr is faster.';
+    } else {
+      dot.className='status-dot yellow';
+      title.textContent='Use RunPod for video and LoRA training.';
+      desc.textContent='With '+ram+' GB unified memory, image workflows run fine locally. Video and LoRA training are better on cloud GPU. RunPod has Mac-friendly setup — the tutorial walks through it.';
+    }
+  } else {
+    document.getElementById('vram-row').style.display='';
+    document.getElementById('ram-label').textContent='System RAM';
+    updateGpu();
+  }
+}
+/* patch updateGpu to respect active tab for label */
+const _origUpdateGpu = updateGpu;
+function updateGpu(){
+  if(currentTab==='mac'){switchTab(document.querySelector('.gpu-tab.active'),'mac');return;}
+  _origUpdateGpu();
+  document.getElementById('vram-val').textContent = document.getElementById('vram-slider').value + ' GB';
 }
 
 /* ── SCROLL REVEAL ── */

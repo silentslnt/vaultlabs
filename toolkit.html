@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultLabs Toolkit</title>
+<link rel="icon" type="image/png" href="assets/media/layout/vaultlabsfavicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',sans-serif;background:#fff;color:#0a0a0a;overflow-x:hidden}
+
+:root{
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.1);
+  --blue-border:rgba(59,130,246,0.25);
+  --muted:rgba(0,0,0,.45);
+  --border:rgba(0,0,0,.09);
+  --card:#f5f5f5;
+  --sidebar-w:260px;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:56px;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:20px;
+}
+.topbar-logo{font-size:16px;font-weight:800;color:#0a0a0a;text-decoration:none}
+.topbar-logo span{color:var(--blue)}
+.topbar-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .2s}
+.topbar-back:hover{color:#0a0a0a}
+.topbar-divider{width:1px;height:18px;background:var(--border)}
+.topbar-title{font-size:13px;font-weight:600;color:#0a0a0a}
+.topbar-cta{margin-left:auto;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:background .2s}
+.topbar-cta:hover{background:#2563eb}
+
+/* ── LAYOUT ── */
+.toolkit-layout{
+  display:flex;
+  padding-top:56px;
+  min-height:100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  border-right:1px solid var(--border);
+  position:fixed;
+  top:56px;bottom:0;left:0;
+  overflow-y:auto;
+  background:#fff;
+  padding:20px 0;
+  scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent;
+}
+.sidebar-section{padding:0 16px;margin-bottom:4px}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 8px 6px;display:block}
+.module-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:9px 10px;
+  border:none;background:transparent;cursor:pointer;
+  border-radius:8px;text-align:left;
+  transition:background .15s;
+  font-family:'Inter',sans-serif;
+}
+.module-btn:hover{background:rgba(0,0,0,.04)}
+.module-btn.active{background:var(--blue-dim);color:var(--blue)}
+.module-btn.active .mod-num{color:var(--blue)}
+.module-btn.active .mod-title{color:var(--blue);font-weight:700}
+.mod-num{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.05em;min-width:22px}
+.mod-title{font-size:13px;font-weight:500;color:#0a0a0a;line-height:1.3;flex:1}
+.mod-dur{font-size:10px;color:var(--muted);font-weight:600;background:rgba(0,0,0,.06);padding:2px 6px;border-radius:4px;white-space:nowrap}
+
+.sidebar-downloads{padding:16px;border-top:1px solid var(--border);margin-top:8px}
+.sidebar-downloads p{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── MAIN CONTENT ── */
+.main-content{
+  margin-left:var(--sidebar-w);
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.content-area{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:0;
+  border-left:1px solid var(--border);
+}
+
+/* ── VIDEO / LESSON ── */
+.lesson-panel{
+  padding:36px 40px;
+  border-right:1px solid var(--border);
+}
+.lesson-breadcrumb{font-size:11px;color:var(--muted);margin-bottom:16px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.lesson-title{font-size:24px;font-weight:800;letter-spacing:-.02em;color:#0a0a0a;margin-bottom:8px;line-height:1.2}
+.lesson-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.lesson-meta span{font-size:12px;color:var(--muted);font-weight:500}
+.lesson-meta .dur-badge{background:rgba(0,0,0,.06);padding:3px 8px;border-radius:4px;font-weight:700}
+
+/* Video player area */
+.video-wrap{
+  width:100%;
+  aspect-ratio:16/9;
+  background:#0a0a0a;
+  border-radius:14px;
+  overflow:hidden;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:28px;
+  border:1px solid var(--border);
+}
+.video-lock{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;text-align:center;padding:32px;
+}
+.lock-icon{font-size:36px;opacity:.6}
+.video-lock h3{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.video-lock p{font-size:14px;color:rgba(255,255,255,.5);max-width:320px;line-height:1.6}
+.video-lock .unlock-btn{
+  background:var(--blue);color:#fff;
+  font-size:14px;font-weight:700;
+  padding:12px 28px;border-radius:9px;
+  text-decoration:none;margin-top:4px;
+  transition:background .2s;display:inline-block;
+}
+.video-lock .unlock-btn:hover{background:#2563eb}
+
+/* lesson description */
+.lesson-desc{font-size:14px;color:rgba(0,0,0,.65);line-height:1.7;margin-bottom:24px}
+.lesson-what{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px 24px;margin-bottom:24px;
+}
+.lesson-what h4{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.lesson-what ul{list-style:none}
+.lesson-what li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#0a0a0a;padding:5px 0;line-height:1.4}
+.lesson-what li::before{content:'✓';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* Downloads row */
+.downloads-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.dl-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--card);border:1px solid var(--border);
+  color:#0a0a0a;font-size:13px;font-weight:600;
+  padding:9px 16px;border-radius:8px;text-decoration:none;
+  transition:all .2s;
+}
+.dl-btn:hover{border-color:rgba(59,130,246,.4);background:var(--blue-dim);color:var(--blue)}
+.dl-btn.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
+.dl-btn svg{flex-shrink:0}
+
+/* ── CHAPTER LIST (right rail) ── */
+.chapter-rail{
+  padding:28px 20px;
+  overflow-y:auto;
+  max-height:calc(100vh - 56px);
+  position:sticky;top:0;
+}
+.chapter-rail h4{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.chapter-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:8px;margin-bottom:2px;
+  cursor:pointer;transition:background .15s;
+}
+.chapter-item:hover{background:rgba(0,0,0,.04)}
+.chapter-item.active-ch{background:var(--blue-dim)}
+.ch-num{font-size:11px;font-weight:700;color:var(--muted);min-width:20px;margin-top:1px}
+.ch-title{font-size:13px;color:#0a0a0a;font-weight:500;line-height:1.35;flex:1}
+.ch-dur{font-size:11px;color:var(--muted);margin-top:2px;display:block}
+.chapter-item.active-ch .ch-title{color:var(--blue);font-weight:700}
+.chapter-item.active-ch .ch-num{color:var(--blue)}
+
+/* ── PRODUCT CARDS SECTION ── */
+.products-bar{
+  padding:24px 40px;
+  border-top:1px solid var(--border);
+  background:#fafafa;
+  display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+}
+.products-bar p{font-size:13px;color:var(--muted);font-weight:600;margin-right:8px;white-space:nowrap}
+.prod-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--border);
+  color:#0a0a0a;font-size:13px;font-weight:600;
+  padding:8px 16px;border-radius:9px;text-decoration:none;
+  transition:all .2s;white-space:nowrap;
+}
+.prod-pill:hover{border-color:rgba(59,130,246,.4);color:var(--blue)}
+.prod-pill .price{color:var(--blue);font-weight:800}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main-content{margin-left:0}
+  .content-area{grid-template-columns:1fr}
+  .chapter-rail{display:none}
+  .lesson-panel{padding:24px 20px}
+  .products-bar{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <a href="index.html" class="topbar-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Back
+  </a>
+  <div class="topbar-divider"></div>
+  <a href="index.html" class="topbar-logo">Vault<span>Labs</span></a>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title">Toolkit</span>
+  <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="topbar-cta">Get Full Access — $179</a>
+</div>
+
+<div class="toolkit-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <span class="sidebar-label">Modules</span>
+
+      <button class="module-btn active" onclick="selectModule(this,0)">
+        <span class="mod-num">00</span>
+        <span class="mod-title">Welcome &amp; Orientation</span>
+        <span class="mod-dur">01:58</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,1)">
+        <span class="mod-num">01</span>
+        <span class="mod-title">How to Install ComfyUI</span>
+        <span class="mod-dur">05:30</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,2)">
+        <span class="mod-num">02</span>
+        <span class="mod-title">ComfyUI Basics</span>
+        <span class="mod-dur">08:12</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,3)">
+        <span class="mod-num">03</span>
+        <span class="mod-title">Generating Your Character</span>
+        <span class="mod-dur">05:12</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,4)">
+        <span class="mod-num">04</span>
+        <span class="mod-title">Generating a Dataset</span>
+        <span class="mod-dur">05:11</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,5)">
+        <span class="mod-num">05</span>
+        <span class="mod-title">Training a LoRA</span>
+        <span class="mod-dur">03:08</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,6)">
+        <span class="mod-num">06</span>
+        <span class="mod-title">Generating Images (Krea2)</span>
+        <span class="mod-dur">06:32</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,7)">
+        <span class="mod-num">07</span>
+        <span class="mod-title">Editing &amp; Skin Enhancing</span>
+        <span class="mod-dur">07:12</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,8)">
+        <span class="mod-num">08</span>
+        <span class="mod-title">Motion Control</span>
+        <span class="mod-dur">06:46</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,9)">
+        <span class="mod-num">09</span>
+        <span class="mod-title">Dataset Generator 2.0</span>
+        <span class="mod-dur">06:20</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,10)">
+        <span class="mod-num">10</span>
+        <span class="mod-title">Training a LoRA (Krea2)</span>
+        <span class="mod-dur">12:44</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,11)">
+        <span class="mod-num">11</span>
+        <span class="mod-title">Prompting System &amp; Library</span>
+        <span class="mod-dur">04:18</span>
+      </button>
+      <button class="module-btn" onclick="selectModule(this,12)">
+        <span class="mod-num">12</span>
+        <span class="mod-title">Content Strategy &amp; Posting SOP</span>
+        <span class="mod-dur">05:44</span>
+      </button>
+    </div>
+
+    <div class="sidebar-downloads">
+      <p>Workflows</p>
+      <a href="https://whop.com/vaultlabs/krea2-image-kit/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Image Kit — $49
+      </a>
+      <a href="https://whop.com/vaultlabs/video-motion-control/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Motion Control — $69
+      </a>
+      <a href="https://whop.com/vaultlabs/scail-2-video-motion-control/" target="_blank" class="dl-btn" style="width:100%;margin-bottom:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        SCAIL-2 Video — $99
+      </a>
+      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="dl-btn" style="width:100%;background:var(--blue);color:#fff;border-color:var(--blue)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Full System — $179
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+    <div class="content-area">
+
+      <!-- LESSON PANEL -->
+      <div class="lesson-panel">
+        <p class="lesson-breadcrumb" id="lesson-breadcrumb">Module 00 · Introduction</p>
+        <h2 class="lesson-title" id="lesson-title">Welcome &amp; Orientation</h2>
+        <div class="lesson-meta">
+          <span class="dur-badge" id="lesson-dur">01:58</span>
+          <span id="lesson-category">Introduction</span>
+        </div>
+
+        <!-- Video area — locked -->
+        <div class="video-wrap">
+          <div class="video-lock">
+            <div class="lock-icon">🔒</div>
+            <h3>Members-only lesson</h3>
+            <p>Get full access to all 13 modules, downloadable workflows, and the complete AI influencer system.</p>
+            <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="unlock-btn">Get Full Access — $179 →</a>
+          </div>
+        </div>
+
+        <!-- Lesson description -->
+        <p class="lesson-desc" id="lesson-desc">A walkthrough of everything in the VaultLabs system — what you'll build, how the modules are structured, and the fastest path through the content depending on your starting point.</p>
+
+        <!-- What you'll learn -->
+        <div class="lesson-what">
+          <h4>What's covered</h4>
+          <ul id="lesson-points">
+            <li>System overview and recommended watch order</li>
+            <li>What hardware you need (hint: not much)</li>
+            <li>How to navigate the toolkit and downloads</li>
+          </ul>
+        </div>
+
+        <!-- Downloads for this module -->
+        <h4 style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px" id="dl-heading">Downloads</h4>
+        <div class="downloads-row" id="downloads-row">
+          <span style="font-size:13px;color:var(--muted)">No downloads for this module.</span>
+        </div>
+      </div>
+
+      <!-- CHAPTER RAIL -->
+      <div class="chapter-rail">
+        <h4>In this module</h4>
+        <div id="chapter-list">
+          <div class="chapter-item active-ch">
+            <span class="ch-num">1</span>
+            <div>
+              <span class="ch-title">Intro &amp; what you're building</span>
+              <span class="ch-dur">01:58</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PRODUCTS BAR -->
+    <div class="products-bar">
+      <p>Get access:</p>
+      <a href="https://whop.com/vaultlabs/krea2-image-kit/" target="_blank" class="prod-pill">Image Kit <span class="price">$49</span></a>
+      <a href="https://whop.com/vaultlabs/video-motion-control/" target="_blank" class="prod-pill">Motion Control <span class="price">$69</span></a>
+      <a href="https://whop.com/vaultlabs/scail-2-video-motion-control/" target="_blank" class="prod-pill">SCAIL-2 Video <span class="price">$99</span></a>
+      <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="prod-pill" style="background:var(--blue);border-color:var(--blue);color:#fff">Full System <span class="price" style="color:#fff">$179</span></a>
+    </div>
+  </main>
+</div>
+
+<script>
+const modules = [
+  {
+    num:'00', title:'Welcome &amp; Orientation', dur:'01:58', category:'Introduction',
+    desc:'A walkthrough of everything in the VaultLabs system — what you\'ll build, how the modules are structured, and the fastest path through the content depending on your starting point.',
+    points:['System overview and recommended watch order','What hardware you need (hint: not much)','How to navigate the toolkit and downloads'],
+    downloads:[],
+    chapters:[{t:'Intro &amp; what you\'re building',d:'01:58'}]
+  },
+  {
+    num:'01', title:'How to Install ComfyUI', dur:'05:30', category:'Setup',
+    desc:'Installing ComfyUI on your local machine or on RunPod — step by step. Covers the exact folder structure, model paths, and custom node manager setup.',
+    points:['Local install vs RunPod cloud setup','Custom nodes manager install','Setting up model directories'],
+    downloads:[{label:'RunPod Setup Script (.sh)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Install ComfyUI locally',d:'02:10'},{t:'RunPod cloud setup',d:'02:40'},{t:'Verifying the install',d:'00:40'}]
+  },
+  {
+    num:'02', title:'ComfyUI Basics', dur:'08:12', category:'Setup',
+    desc:'How ComfyUI works — nodes, connections, the queue, saving workflows, loading models. Everything you need before you run your first generation.',
+    points:['Node editor navigation','Loading and saving workflows','Queue management basics','Understanding model slots'],
+    downloads:[],
+    chapters:[{t:'Interface walkthrough',d:'02:00'},{t:'Nodes and connections',d:'02:30'},{t:'Running your first generation',d:'02:00'},{t:'Saving workflows',d:'01:42'}]
+  },
+  {
+    num:'03', title:'Generating Your Character', dur:'05:12', category:'Image',
+    desc:'How to generate a consistent AI character using Krea2 — from txt2img prompting to locking in a face that stays consistent across shots.',
+    points:['Krea2 txt2img workflow walkthrough','Prompt structure for consistent faces','LoRA slot setup','Seed management for consistency'],
+    downloads:[{label:'Krea2 Image Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Loading the workflow',d:'01:00'},{t:'Building your prompt',d:'01:30'},{t:'Running generations',d:'01:42'},{t:'Picking your character seed',d:'01:00'}]
+  },
+  {
+    num:'04', title:'Generating a Dataset', dur:'05:11', category:'Training',
+    desc:'How to generate a high-quality training dataset for LoRA training — variety of poses, angles, lighting, and expressions that make a strong model.',
+    points:['What makes a good training dataset','Pose and angle variety strategy','Automated dataset workflow','Captioning and tagging outputs'],
+    downloads:[{label:'Dataset Generator Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Dataset requirements',d:'01:15'},{t:'Running the dataset workflow',d:'02:00'},{t:'Reviewing and culling outputs',d:'01:56'}]
+  },
+  {
+    num:'05', title:'Training a LoRA', dur:'03:08', category:'Training',
+    desc:'Training your first character LoRA — uploading your dataset, configuring training settings, and running the job on RunPod.',
+    points:['Training settings that work (rank, steps, LR)','Uploading dataset to RunPod','Monitoring training progress','Testing the LoRA output'],
+    downloads:[{label:'LoRA Training Config (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Training settings explained',d:'01:10'},{t:'Running the training job',d:'01:00'},{t:'Testing your LoRA',d:'00:58'}]
+  },
+  {
+    num:'06', title:'Generating Images (Krea2)', dur:'06:32', category:'Image',
+    desc:'The full Krea2 production image workflow — using your trained LoRA with the complete prompt system to get gallery-quality outputs every run.',
+    points:['Full production workflow walkthrough','LoRA strength tuning','Prompt system for photorealism','Batch generation setup'],
+    downloads:[{label:'Krea2 Image Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'},{label:'Prompt Library (.txt)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Loading the production workflow',d:'01:00'},{t:'Prompt system walkthrough',d:'02:00'},{t:'Tuning LoRA strength',d:'01:30'},{t:'Batch output review',d:'02:02'}]
+  },
+  {
+    num:'07', title:'Editing &amp; Skin Enhancing', dur:'07:12', category:'Post-Processing',
+    desc:'The skin enhancer and upscaler workflow — turning raw outputs into clean, high-resolution images ready to post.',
+    points:['Skin enhancement node setup','Upscaling for full resolution','Inpainting for fixing details','Export settings for social media'],
+    downloads:[{label:'Skin Enhance &amp; Upscale Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Skin enhancer workflow',d:'02:30'},{t:'Upscaling pipeline',d:'02:00'},{t:'Inpainting fixes',d:'01:30'},{t:'Export and output',d:'01:12'}]
+  },
+  {
+    num:'08', title:'Motion Control', dur:'06:46', category:'Video',
+    desc:'How to control exactly how your character moves — head turns, walks, gestures — using the motion control workflow.',
+    points:['MiniMax H3 motion workflow','LTX 2.3 director mode','Krea2 → video pipeline','Camera movement control'],
+    downloads:[{label:'Motion Control Workflow (.json)',href:'https://whop.com/vaultlabs/video-motion-control/'}],
+    chapters:[{t:'Motion workflow overview',d:'01:30'},{t:'MiniMax H3 setup',d:'02:00'},{t:'LTX director mode',d:'02:00'},{t:'Camera control tips',d:'01:16'}]
+  },
+  {
+    num:'09', title:'Dataset Generator 2.0', dur:'06:20', category:'Training',
+    desc:'The updated automated dataset generator — faster, more variety, better captioning. Replaces manual dataset generation from Module 04.',
+    points:['Auto-vary poses and angles','Improved captioning pipeline','Quality filter settings','One-click dataset output'],
+    downloads:[{label:'Dataset Generator 2.0 Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'What\'s new in v2',d:'01:00'},{t:'Running the workflow',d:'02:30'},{t:'Output review',d:'02:50'}]
+  },
+  {
+    num:'10', title:'Training a LoRA (Krea2)', dur:'12:44', category:'Training',
+    desc:'Training a LoRA specifically tuned for the Krea2 model — different settings, different approach, significantly better face consistency.',
+    points:['Krea2-specific LoRA settings','Dataset requirements for Krea2','Rank and step configuration','Testing and validating the result'],
+    downloads:[{label:'Krea2 LoRA Training Config (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Krea2 LoRA vs standard LoRA',d:'02:00'},{t:'Training settings',d:'03:00'},{t:'Running the job',d:'03:00'},{t:'Testing outputs',d:'03:00'},{t:'Tuning for quality',d:'01:44'}]
+  },
+  {
+    num:'11', title:'Prompting System &amp; Library', dur:'04:18', category:'Prompting',
+    desc:'The full prompt system used to get photorealistic, consistent results every time — plus the complete prompt library you can copy directly.',
+    points:['JoyCaption-style prompt structure','Clothing, pose, and setting system','Copy-paste prompt library','How to adapt prompts for different shots'],
+    downloads:[{label:'Prompt Library (.txt)',href:'https://whop.com/vaultlabs/krea2-image-kit/'},{label:'Prompt Builder Workflow (.json)',href:'https://whop.com/vaultlabs/krea2-image-kit/'}],
+    chapters:[{t:'Prompt structure walkthrough',d:'01:30'},{t:'Clothing and pose system',d:'01:18'},{t:'Using the library',d:'01:30'}]
+  },
+  {
+    num:'12', title:'Content Strategy &amp; Posting SOP', dur:'05:44', category:'Strategy',
+    desc:'The exact content strategy — how often to post, what platforms, what format, and the posting SOP that keeps accounts growing consistently.',
+    points:['Platform strategy (TikTok, Reels, Fans)','Posting frequency and timing','Content format guide','Monetization setup walkthrough'],
+    downloads:[{label:'Posting SOP (.pdf)',href:'https://whop.com/vaultlabs/full-system-00/'}],
+    chapters:[{t:'Platform breakdown',d:'01:30'},{t:'Posting schedule',d:'01:14'},{t:'Monetization setup',d:'02:00'},{t:'Staying consistent',d:'01:00'}]
+  }
+];
+
+function selectModule(btn, idx){
+  document.querySelectorAll('.module-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const m = modules[idx];
+  document.getElementById('lesson-breadcrumb').textContent = 'Module ' + m.num + ' · ' + m.category;
+  document.getElementById('lesson-title').innerHTML = m.title;
+  document.getElementById('lesson-dur').textContent = m.dur;
+  document.getElementById('lesson-category').textContent = m.category;
+  document.getElementById('lesson-desc').textContent = m.desc;
+
+  const pts = document.getElementById('lesson-points');
+  pts.innerHTML = m.points.map(p=>'<li>'+p+'</li>').join('');
+
+  const dlRow = document.getElementById('downloads-row');
+  const dlHeading = document.getElementById('dl-heading');
+  if(m.downloads.length){
+    dlHeading.style.display='';
+    dlRow.innerHTML = m.downloads.map(d=>`
+      <a href="${d.href}" target="_blank" class="dl-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        ${d.label}
+      </a>
+    `).join('');
+  } else {
+    dlHeading.style.display='none';
+    dlRow.innerHTML='<span style="font-size:13px;color:var(--muted)">No downloads for this module.</span>';
+  }
+
+  const chList = document.getElementById('chapter-list');
+  chList.innerHTML = m.chapters.map((c,i)=>`
+    <div class="chapter-item ${i===0?'active-ch':''}" onclick="selectChapter(this)">
+      <span class="ch-num">${i+1}</span>
+      <div>
+        <span class="ch-title">${c.t}</span>
+        <span class="ch-dur">${c.d}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectChapter(el){
+  document.querySelectorAll('.chapter-item').forEach(c=>c.classList.remove('active-ch'));
+  el.classList.add('active-ch');
+}
+</script>
+</body>
+</html>
