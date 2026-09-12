@@ -713,6 +713,18 @@ function applyAuthUI(){
         }
       }
     });
+    // Hide "GET ACCESS" products bar for members
+    const productsBar=document.querySelector('.products-bar');
+    if(productsBar)productsBar.style.display='none';
+    // Update sidebar footer for members
+    const sideFooter=document.querySelector('.sidebar-footer');
+    if(sideFooter){
+      const prod=session.user?.user_metadata?.product||'';
+      const isFullSystem=prod==='full_system';
+      if(isFullSystem){
+        sideFooter.innerHTML=`<div style="padding:8px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.15);border-radius:8px;text-align:center"><span style="font-size:11px;font-weight:700;color:#4ade80;letter-spacing:.04em">✓ Full System — All Access</span></div>`;
+      }
+    }
     // For members: change video lock to "coming soon" instead of "Unlock Full Access"
     const vl=document.querySelector('.video-lock');
     if(vl){
