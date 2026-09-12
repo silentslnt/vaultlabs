@@ -20,11 +20,14 @@ async function verifyWhopSignature(request, secret) {
   const sigHex = Array.from(new Uint8Array(sigBuffer))
     .map(b => b.toString(16).padStart(2, '0')).join('');
 
-  // Whop may send "sha256=<hex>" or just "<hex>"
+  // Timing-safe comparison — prevents signature forgery via timing attack
   const clean = signature.replace(/^sha256=/, '');
-  const valid = clean === sigHex;
-
-  return { valid, body: rawBody };
+  if (clean.length !== sigHex.length) return { valid: false, body: null };
+  let diff = 0;
+  for (let i = 0; i < sigHex.length; i++) {
+    diff |= clean.charCodeAt(i) ^ sigHex.charCodeAt(i);
+  }
+  return { valid: diff === 0, body: rawBody };
 }
 
 function generateKey() {
@@ -33,19 +36,22 @@ function generateKey() {
   return `VL-${seg()}-${seg()}-${seg()}`;
 }
 
+function maskEmail(email) {
+  const [user, domain] = email.split('@');
+  return `${user[0]}***@${domain}`;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
-
   const { SUPABASE_URL, SUPABASE_SECRET, RESEND_API_KEY, WHOP_WEBHOOK_SECRET } = env;
 
   if (!SUPABASE_URL || !SUPABASE_SECRET || !RESEND_API_KEY || !WHOP_WEBHOOK_SECRET) {
     return new Response('Server misconfigured', { status: 500 });
   }
 
-  // Verify signature
+  // Verify Whop signature before doing anything
   const { valid, body } = await verifyWhopSignature(request.clone(), WHOP_WEBHOOK_SECRET);
   if (!valid) {
-    console.error('Whop webhook signature invalid');
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -57,11 +63,9 @@ export async function onRequestPost(context) {
   }
 
   const eventType = event.event || event.type || '';
-  console.log('Whop webhook event:', eventType);
 
-  // Only act on purchase/activation events
+  // Only act on purchase/activation events — silently ignore everything else
   if (!['membership.activated', 'payment.succeeded'].includes(eventType)) {
-    // Return 200 so Whop doesn't retry — we just don't act on it
     return Response.json({ received: true, action: 'ignored' });
   }
 
@@ -73,8 +77,9 @@ export async function onRequestPost(context) {
     event?.user?.email ||
     null;
 
-  if (!email) {
-    console.error('No email found in Whop payload:', JSON.stringify(event).slice(0, 500));
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Log without exposing payload contents
+    console.error('Whop webhook: no valid email in event type', eventType);
     return Response.json({ received: true, action: 'no_email' });
   }
 
@@ -85,14 +90,14 @@ export async function onRequestPost(context) {
     'Prefer': 'return=representation',
   };
 
-  // Check if this email already has a key (prevent duplicate sends on duplicate events)
+  // Check for duplicate — prevent issuing multiple keys for same purchase event
   const existingRes = await fetch(
     `${SUPABASE_URL}/rest/v1/license_keys?used_by_email=eq.${encodeURIComponent(email)}&select=key`,
     { headers: sbHeaders }
   );
   const existing = await existingRes.json();
   if (Array.isArray(existing) && existing.length > 0) {
-    console.log('Duplicate webhook for', email, '— key already exists, skipping');
+    console.log('Duplicate webhook received — key already exists, skipping');
     return Response.json({ received: true, action: 'duplicate_skipped' });
   }
 
@@ -101,23 +106,16 @@ export async function onRequestPost(context) {
   const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/license_keys`, {
     method: 'POST',
     headers: sbHeaders,
-    body: JSON.stringify({
-      key,
-      used: false,
-      // Store who it was issued for (not marked as used until they register)
-      used_by_email: email,
-      used_at: null,
-    }),
+    body: JSON.stringify({ key, used: false, used_by_email: email, used_at: null }),
   });
 
   if (!insertRes.ok) {
-    const err = await insertRes.text();
-    console.error('Supabase insert failed:', err);
+    console.error('Supabase insert failed with status', insertRes.status);
     return new Response('Failed to store key', { status: 500 });
   }
 
-  // Send email via Resend
-  const registerUrl = 'https://vaultlabs.dev/webpanel/register.html';
+  // Send key via Resend — email address is the recipient, never logged
+  const registerUrl = `https://vaultlabs.dev/webpanel/claim.html`;
   const emailRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -134,41 +132,30 @@ export async function onRequestPost(context) {
             Vault<span style="color:#3b82f6">Labs</span>
           </h1>
           <p style="color:rgba(255,255,255,.5);font-size:13px;margin:0 0 32px">Your purchase is confirmed.</p>
-
-          <p style="font-size:15px;margin:0 0 20px">Here's your license key:</p>
-
-          <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:16px 20px;text-align:center;margin-bottom:28px">
+          <p style="font-size:15px;margin:0 0 20px">Your license key:</p>
+          <div style="background:#1a1a1a;border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:16px 20px;text-align:center;margin-bottom:28px">
             <span style="font-family:monospace;font-size:20px;font-weight:700;letter-spacing:.08em;color:#60a5fa">${key}</span>
           </div>
-
-          <p style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 20px">
-            Use this key to create your account and unlock the full course:
-          </p>
-
-          <a href="${registerUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px">
-            Create Your Account →
-          </a>
-
-          <p style="font-size:12px;color:rgba(255,255,255,.3);margin:32px 0 0">
-            This key is single-use and tied to your account. Don't share it.
-          </p>
+          <p style="font-size:14px;color:rgba(255,255,255,.7);margin:0 0 20px">Go to your account portal to create your account — your key will be pre-filled:</p>
+          <a href="${registerUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px">Get Access →</a>
+          <p style="font-size:12px;color:rgba(255,255,255,.3);margin:32px 0 0">Single-use key. Do not share.</p>
         </div>
       `,
     }),
   });
 
   if (!emailRes.ok) {
-    const emailErr = await emailRes.text();
-    console.error('Resend email failed:', emailErr);
-    // Key is stored — email failed, but not catastrophic. Log it.
-    return Response.json({ received: true, action: 'key_stored_email_failed', key });
+    // Key stored, email failed — log status code only, not email address
+    console.error('Resend failed with status', emailRes.status);
+    return Response.json({ received: true, action: 'key_stored_email_failed' });
   }
 
-  console.log('Key issued and emailed to:', email);
+  console.log('Key issued successfully for event:', eventType);
   return Response.json({ received: true, action: 'key_issued' });
 }
 
 export async function onRequest(context) {
   if (context.request.method === 'POST') return onRequestPost(context);
-  return new Response('Method not allowed', { status: 405 });
+  // Return 200 for HEAD/GET so Whop's endpoint verification passes
+  return new Response('OK', { status: 200 });
 }

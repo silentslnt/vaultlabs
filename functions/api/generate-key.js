@@ -3,20 +3,29 @@
 // Protected by ADMIN_PASSWORD env var
 // Env vars needed: SUPABASE_URL, SUPABASE_SECRET, ADMIN_PASSWORD
 
+function timingSafeEqual(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  // Check admin password header
-  const adminPass = request.headers.get('X-Admin-Password');
-  if (!adminPass || adminPass !== env.ADMIN_PASSWORD) {
+  const adminPass = request.headers.get('X-Admin-Password') || '';
+  if (!timingSafeEqual(adminPass, env.ADMIN_PASSWORD || '')) {
     return Response.json({ error: 'Unauthorized.' }, { status: 401 });
   }
 
   const SUPABASE_URL = env.SUPABASE_URL;
   const SUPABASE_SECRET = env.SUPABASE_SECRET;
 
-  // Generate key in format: VL-XXXX-XXXX-XXXX
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I confusion
+  if (!SUPABASE_URL || !SUPABASE_SECRET) {
+    return Response.json({ error: 'Server misconfigured.' }, { status: 500 });
+  }
+
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   const key = `VL-${seg()}-${seg()}-${seg()}`;
 
@@ -32,8 +41,8 @@ export async function onRequestPost(context) {
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    return Response.json({ error: 'Failed to store key.', detail: err }, { status: 500 });
+    await res.json().catch(() => {});
+    return Response.json({ error: 'Failed to store key.' }, { status: 500 });
   }
 
   return Response.json({ key });

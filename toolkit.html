@@ -15,7 +15,6 @@
     'https://qmoudajzycshbssdlczg.supabase.co',
     'sb_publishable_TACZIaiyoxdTGv4QVoKPRg_Sax_NNAc'
   );
-  // Don't redirect — allow preview. Just track session state.
   sb.auth.getSession().then(({ data: { session } }) => {
     window._vlLoggedIn = !!session;
     if (session) {
@@ -26,6 +25,8 @@
       document.getElementById('topbar-signout').style.display = 'inline-block';
       document.getElementById('topbar-cta-buy').style.display = 'none';
     }
+    // Auth resolved — now safe to render module content
+    if (window._onAuthReady) window._onAuthReady();
   });
   window._sbSignOut = async () => {
     await sb.auth.signOut();
@@ -166,6 +167,25 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .prod-pill.featured{background:var(--blue);border-color:var(--blue);color:#fff}
 .prod-pill.featured:hover{background:var(--blue-hover)}
 .prod-pill.featured .price{color:rgba(255,255,255,.8)}
+
+/* Steps lock gate — shown to non-members instead of actual steps */
+.steps-gate{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center;margin-bottom:22px}
+.steps-gate-icon{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.steps-gate h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.steps-gate p{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:18px;max-width:340px;margin-left:auto;margin-right:auto}
+.steps-gate-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.steps-gate-btns a{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:9px 20px;border-radius:8px;transition:var(--t)}
+.steps-gate-btns .sgb-buy{background:var(--blue);color:#fff}
+.steps-gate-btns .sgb-buy:hover{background:var(--blue-hover);transform:translateY(-1px)}
+.steps-gate-btns .sgb-login{background:var(--surface-3);color:var(--text-2);border:1px solid var(--border)}
+.steps-gate-btns .sgb-login:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+/* Fake blurred step rows shown behind gate */
+.steps-preview{position:relative;margin-bottom:22px;user-select:none;pointer-events:none}
+.steps-preview-row{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;filter:blur(4px)}
+.steps-preview-num{width:22px;height:22px;border-radius:6px;background:var(--blue-dim);border:1px solid var(--border-blue);flex-shrink:0}
+.steps-preview-bar{height:11px;border-radius:4px;background:rgba(255,255,255,.08);flex:1}
+.steps-gate-wrap{position:relative}
+.steps-gate-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:16px;background:linear-gradient(to bottom,rgba(19,19,19,0) 0%,rgba(19,19,19,.85) 30%,rgba(19,19,19,.98) 60%)}
 
 @media(max-width:960px){
   .sidebar{display:none}.main{margin-left:0}
@@ -505,10 +525,39 @@ function buildSteps(steps){
   return html+'</div>';
 }
 
+function buildStepsGate(stepCount){
+  // Renders blurred fake rows + lock overlay — real step content never touches the DOM
+  const count=Math.min(stepCount||4,6);
+  const widths=['65%','50%','72%','58%','68%','55%'];
+  let rows='';
+  for(let i=0;i<count;i++){
+    rows+=`<div class="steps-preview-row"><div class="steps-preview-num"></div><div class="steps-preview-bar" style="width:${widths[i%widths.length]}"></div></div>`;
+  }
+  return `<div class="step-section"><h4>Step-by-step</h4>
+  <div class="steps-gate-wrap">
+    <div class="steps-preview" aria-hidden="true">${rows}</div>
+    <div class="steps-gate-overlay">
+      <div class="steps-gate">
+        <div class="steps-gate-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h4>Member content</h4>
+        <p>The step-by-step walkthrough for this module is included with any VaultLabs purchase. Already a member? Log in to unlock.</p>
+        <div class="steps-gate-btns">
+          <a href="https://whop.com/vaultlabs/full-system-00/" target="_blank" class="sgb-buy">Get Full Access — $179</a>
+          <a href="/webpanel/login.html" class="sgb-login">Log in</a>
+        </div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+let _currentModIdx=0;
 function selectMod(btn,idx){
   document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  _currentModIdx=idx;
   const m=M[idx];
+  const loggedIn=!!window._vlLoggedIn;
+
   document.getElementById('lesson-bc').textContent=`Module ${m.num} · ${m.cat}`;
   document.getElementById('lesson-title').innerHTML=m.title;
   document.getElementById('lesson-dur').textContent=m.dur;
@@ -517,17 +566,41 @@ function selectMod(btn,idx){
   ct.className='cat-tag '+(CAT[m.cat]||'cat-intro');
   document.getElementById('lesson-body').innerHTML=`<p class="lesson-desc">${m.desc}</p>`;
   document.getElementById('lesson-points').innerHTML=m.points.map(p=>`<li>${CHK}${p}</li>`).join('');
-  document.getElementById('steps-section').innerHTML=buildSteps(m.steps);
+
+  // Steps: only inject real content when authenticated
+  if(loggedIn){
+    document.getElementById('steps-section').innerHTML=buildSteps(m.steps);
+  } else {
+    const numSteps=m.steps?m.steps.filter(s=>s.n).length:0;
+    document.getElementById('steps-section').innerHTML=numSteps>0?buildStepsGate(numSteps):'';
+  }
+
+  // Downloads: only show links when authenticated
   const dlL=document.getElementById('dl-label'),dlR=document.getElementById('dl-row');
-  if(m.dl&&m.dl.length){dlL.style.display='';dlR.innerHTML=m.dl.map(d=>`<a href="${d.h}" target="_blank" class="dl-btn">${DL}${d.l}</a>`).join('');}
-  else{dlL.style.display='none';dlR.innerHTML='<span class="dl-none">No downloads for this module.</span>';}
+  if(loggedIn&&m.dl&&m.dl.length){
+    dlL.style.display='';
+    dlR.innerHTML=m.dl.map(d=>`<a href="${d.h}" target="_blank" class="dl-btn">${DL}${d.l}</a>`).join('');
+  } else {
+    dlL.style.display='none';
+    dlR.innerHTML='<span class="dl-none">No downloads for this module.</span>';
+  }
+
   document.getElementById('chapter-list').innerHTML=m.chapters.map((c,i)=>
     `<div class="ch-item${i===0?' active':''}" onclick="selectCh(this)"><span class="ch-n">${i+1}</span><div class="ch-body"><span class="ch-t">${c.t}</span><span class="ch-d">${c.d}</span></div></div>`
   ).join('');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function selectCh(el){document.querySelectorAll('.ch-item').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
-selectMod(document.querySelector('.mod-btn'),0);
+
+// Wait for auth to resolve before rendering — prevents flash of unprotected content
+// If auth already resolved before this script ran (very fast connection), fire immediately
+if(window._vlLoggedIn!==undefined){
+  selectMod(document.querySelector('.mod-btn'),0);
+} else {
+  window._onAuthReady=function(){
+    selectMod(document.querySelector('.mod-btn'),0);
+  };
+}
 </script>
 </body>
 </html>
