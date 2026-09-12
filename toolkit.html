@@ -17,15 +17,9 @@
   );
   sb.auth.getSession().then(({ data: { session } }) => {
     window._vlLoggedIn = !!session;
-    if (session) {
-      const b = document.getElementById('preview-banner');
-      if (b) b.style.display = 'none';
-      document.getElementById('member-badge').style.display = 'flex';
-      document.getElementById('topbar-login').style.display = 'none';
-      document.getElementById('topbar-signout').style.display = 'inline-block';
-      document.getElementById('topbar-cta-buy').style.display = 'none';
-    }
+    window._vlSession = session;
     // Auth resolved — now safe to render module content
+    // DOM updates happen in _onAuthReady after body is parsed
     if (window._onAuthReady) window._onAuthReady();
   });
   window._sbSignOut = async () => {
@@ -68,14 +62,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sidebar-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
 .sidebar-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);padding:8px 8px 5px;display:block}
 
-.mod-btn{width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;transition:var(--t);text-align:left;border:1px solid transparent}
+.mod-btn{width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;transition:var(--t);text-align:left;border:1px solid transparent;position:relative}
 .mod-btn:hover{background:var(--surface-2)}
 .mod-btn.active{background:var(--blue-dim);border-color:var(--border-blue)}
 .mod-btn.active .mod-n{color:var(--blue)}
 .mod-btn.active .mod-t{color:var(--text);font-weight:600}
+.mod-btn.done .mod-n{color:var(--green)}
+.mod-btn.done .mod-t{color:rgba(255,255,255,.5)}
+.mod-btn.done .mod-d{color:var(--green);background:rgba(34,197,94,.1)}
+.mod-done-check{display:none;color:var(--green);flex-shrink:0}
+.mod-btn.done .mod-done-check{display:block}
 .mod-n{font-size:10px;font-weight:700;color:var(--text-3);min-width:18px;letter-spacing:.04em;flex-shrink:0}
 .mod-t{font-size:12px;font-weight:500;color:var(--text-2);flex:1;line-height:1.3}
 .mod-d{font-size:10px;font-weight:600;color:var(--text-3);background:var(--surface-3);padding:2px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+/* Mark complete button */
+.mark-complete-bar{padding:24px 0 8px;display:flex;align-items:center;gap:10px}
+.mark-complete-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80;font-size:12px;font-weight:700;font-family:inherit;padding:8px 16px;border-radius:8px;cursor:pointer;transition:var(--t)}
+.mark-complete-btn:hover{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.35)}
+.mark-complete-btn.done{background:rgba(34,197,94,.15);color:#4ade80}
+.mark-complete-btn svg{flex-shrink:0}
+.progress-bar-wrap{margin-bottom:0}
+.progress-track{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
+.progress-label{font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:.04em}
 
 .sidebar-footer{padding:10px 8px;border-top:1px solid var(--border);flex-shrink:0}
 .sidebar-footer-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);padding:0 8px;margin-bottom:6px;display:block}
@@ -222,23 +231,27 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   <aside class="sidebar">
     <div class="sidebar-scroll">
       <span class="sidebar-label">Full Course</span>
-      <button class="mod-btn active" onclick="selectMod(this,0)"><span class="mod-n">00</span><span class="mod-t">Welcome &amp; What You're Building</span><span class="mod-d">02:10</span></button>
-      <button class="mod-btn" onclick="selectMod(this,1)"><span class="mod-n">01</span><span class="mod-t">Hardware &amp; Cloud: What You Need</span><span class="mod-d">04:20</span></button>
-      <button class="mod-btn" onclick="selectMod(this,2)"><span class="mod-n">02</span><span class="mod-t">RunPod Setup — Pod + Network Volume</span><span class="mod-d">06:15</span></button>
-      <button class="mod-btn" onclick="selectMod(this,3)"><span class="mod-n">03</span><span class="mod-t">Installing ComfyUI on RunPod</span><span class="mod-d">05:30</span></button>
-      <button class="mod-btn" onclick="selectMod(this,4)"><span class="mod-n">04</span><span class="mod-t">ComfyUI Manager &amp; Custom Nodes</span><span class="mod-d">07:00</span></button>
-      <button class="mod-btn" onclick="selectMod(this,5)"><span class="mod-n">05</span><span class="mod-t">Navigating ComfyUI &amp; Workflows</span><span class="mod-d">08:30</span></button>
-      <button class="mod-btn" onclick="selectMod(this,6)"><span class="mod-n">06</span><span class="mod-t">Models, LoRAs &amp; Where to Get Them</span><span class="mod-d">05:45</span></button>
-      <button class="mod-btn" onclick="selectMod(this,7)"><span class="mod-n">07</span><span class="mod-t">Creating Your AI Character (Krea2)</span><span class="mod-d">05:12</span></button>
-      <button class="mod-btn" onclick="selectMod(this,8)"><span class="mod-n">08</span><span class="mod-t">Dataset Generator — Training Data</span><span class="mod-d">06:00</span></button>
-      <button class="mod-btn" onclick="selectMod(this,9)"><span class="mod-n">09</span><span class="mod-t">Training Your LoRA</span><span class="mod-d">08:00</span></button>
-      <button class="mod-btn" onclick="selectMod(this,10)"><span class="mod-n">10</span><span class="mod-t">Production Image Generation</span><span class="mod-d">06:32</span></button>
-      <button class="mod-btn" onclick="selectMod(this,11)"><span class="mod-n">11</span><span class="mod-t">Skin Enhance &amp; Upscaling</span><span class="mod-d">07:12</span></button>
-      <button class="mod-btn" onclick="selectMod(this,12)"><span class="mod-n">12</span><span class="mod-t">Prompting System &amp; Library</span><span class="mod-d">04:18</span></button>
-      <button class="mod-btn" onclick="selectMod(this,13)"><span class="mod-n">13</span><span class="mod-t">MiniMax Motion Control (Video)</span><span class="mod-d">06:46</span></button>
-      <button class="mod-btn" onclick="selectMod(this,14)"><span class="mod-n">14</span><span class="mod-t">SCAIL Advanced Video</span><span class="mod-d">09:20</span></button>
-      <button class="mod-btn" onclick="selectMod(this,15)"><span class="mod-n">15</span><span class="mod-t">Content Strategy &amp; Posting SOP</span><span class="mod-d">05:44</span></button>
-      <button class="mod-btn" onclick="selectMod(this,16)"><span class="mod-n">16</span><span class="mod-t">Monetization Setup</span><span class="mod-d">04:50</span></button>
+      <div class="progress-bar-wrap" style="padding:2px 8px 10px">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <span class="progress-label" id="progress-label">0 / 17 completed</span>
+      </div>
+      <button class="mod-btn active" onclick="selectMod(this,0)"><span class="mod-n">00</span><span class="mod-t">Welcome &amp; What You're Building</span><span class="mod-d">02:10</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,1)"><span class="mod-n">01</span><span class="mod-t">Hardware &amp; Cloud: What You Need</span><span class="mod-d">04:20</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,2)"><span class="mod-n">02</span><span class="mod-t">RunPod Setup — Pod + Network Volume</span><span class="mod-d">06:15</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,3)"><span class="mod-n">03</span><span class="mod-t">Installing ComfyUI on RunPod</span><span class="mod-d">05:30</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,4)"><span class="mod-n">04</span><span class="mod-t">ComfyUI Manager &amp; Custom Nodes</span><span class="mod-d">07:00</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,5)"><span class="mod-n">05</span><span class="mod-t">Navigating ComfyUI &amp; Workflows</span><span class="mod-d">08:30</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,6)"><span class="mod-n">06</span><span class="mod-t">Models, LoRAs &amp; Where to Get Them</span><span class="mod-d">05:45</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,7)"><span class="mod-n">07</span><span class="mod-t">Creating Your AI Character (Krea2)</span><span class="mod-d">05:12</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,8)"><span class="mod-n">08</span><span class="mod-t">Dataset Generator — Training Data</span><span class="mod-d">06:00</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,9)"><span class="mod-n">09</span><span class="mod-t">Training Your LoRA</span><span class="mod-d">08:00</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,10)"><span class="mod-n">10</span><span class="mod-t">Production Image Generation</span><span class="mod-d">06:32</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,11)"><span class="mod-n">11</span><span class="mod-t">Skin Enhance &amp; Upscaling</span><span class="mod-d">07:12</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,12)"><span class="mod-n">12</span><span class="mod-t">Prompting System &amp; Library</span><span class="mod-d">04:18</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,13)"><span class="mod-n">13</span><span class="mod-t">MiniMax Motion Control (Video)</span><span class="mod-d">06:46</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,14)"><span class="mod-n">14</span><span class="mod-t">SCAIL Advanced Video</span><span class="mod-d">09:20</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,15)"><span class="mod-n">15</span><span class="mod-t">Content Strategy &amp; Posting SOP</span><span class="mod-d">05:44</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+      <button class="mod-btn" onclick="selectMod(this,16)"><span class="mod-n">16</span><span class="mod-t">Monetization Setup</span><span class="mod-d">04:50</span><span class="mod-done-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
     </div>
     <div class="sidebar-footer">
       <span class="sidebar-footer-label">Get Workflows</span>
@@ -269,6 +282,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
         <div id="lesson-body"></div>
         <div class="what-box"><h4>What's covered</h4><ul id="lesson-points"></ul></div>
         <div id="steps-section"></div>
+        <div class="mark-complete-bar" id="mark-complete-bar" style="display:none">
+          <button class="mark-complete-btn" id="mark-complete-btn" onclick="toggleComplete()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="mark-complete-text">Mark as complete</span>
+          </button>
+        </div>
         <p class="dl-label" id="dl-label" style="display:none">Downloads</p>
         <div class="dl-row" id="dl-row"><span class="dl-none">No downloads for this module.</span></div>
       </div>
@@ -588,18 +607,94 @@ function selectMod(btn,idx){
   document.getElementById('chapter-list').innerHTML=m.chapters.map((c,i)=>
     `<div class="ch-item${i===0?' active':''}" onclick="selectCh(this)"><span class="ch-n">${i+1}</span><div class="ch-body"><span class="ch-t">${c.t}</span><span class="ch-d">${c.d}</span></div></div>`
   ).join('');
+  // Show mark complete button only for members
+  if(loggedIn){updateCompleteBtn(idx);}
+  else{const bar=document.getElementById('mark-complete-bar');if(bar)bar.style.display='none';}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function selectCh(el){document.querySelectorAll('.ch-item').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
 
+// ── MODULE COMPLETION ──
+const STORAGE_KEY='vl_completed_v1';
+function getCompleted(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return[]}}
+function saveCompleted(arr){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(arr))}catch{}}
+
+function updateProgress(){
+  const done=getCompleted();
+  const total=M.length;
+  const count=done.length;
+  const pct=Math.round(count/total*100);
+  const fill=document.getElementById('progress-fill');
+  const label=document.getElementById('progress-label');
+  if(fill)fill.style.width=pct+'%';
+  if(label)label.textContent=count+' / '+total+' completed';
+  // Update sidebar buttons
+  document.querySelectorAll('.mod-btn').forEach((btn,i)=>{
+    if(done.includes(i))btn.classList.add('done');
+    else btn.classList.remove('done');
+  });
+}
+
+function updateCompleteBtn(idx){
+  const done=getCompleted();
+  const isComplete=done.includes(idx);
+  const btn=document.getElementById('mark-complete-btn');
+  const txt=document.getElementById('mark-complete-text');
+  const bar=document.getElementById('mark-complete-bar');
+  if(!btn||!bar)return;
+  bar.style.display='flex';
+  if(isComplete){
+    btn.classList.add('done');
+    txt.textContent='Completed ✓';
+  } else {
+    btn.classList.remove('done');
+    txt.textContent='Mark as complete';
+  }
+}
+
+function toggleComplete(){
+  const idx=_currentModIdx;
+  let done=getCompleted();
+  if(done.includes(idx)){
+    done=done.filter(i=>i!==idx);
+  } else {
+    done.push(idx);
+  }
+  saveCompleted(done);
+  updateProgress();
+  updateCompleteBtn(idx);
+}
+
+// ── END COMPLETION ──
+
 // Wait for auth to resolve before rendering — prevents flash of unprotected content
 // If auth already resolved before this script ran (very fast connection), fire immediately
-if(window._vlLoggedIn!==undefined){
+function applyAuthUI(){
+  const session=window._vlSession;
+  if(session){
+    const b=document.getElementById('preview-banner');
+    if(b)b.style.display='none';
+    const badge=document.getElementById('member-badge');
+    if(badge)badge.style.display='flex';
+    const loginBtn=document.getElementById('topbar-login');
+    if(loginBtn)loginBtn.style.display='none';
+    const signout=document.getElementById('topbar-signout');
+    if(signout)signout.style.display='inline-block';
+    const buyCta=document.getElementById('topbar-cta-buy');
+    if(buyCta)buyCta.style.display='none';
+  }
+}
+
+function initPage(){
+  applyAuthUI();
   selectMod(document.querySelector('.mod-btn'),0);
+  updateProgress();
+}
+
+if(window._vlLoggedIn!==undefined){
+  initPage();
 } else {
-  window._onAuthReady=function(){
-    selectMod(document.querySelector('.mod-btn'),0);
-  };
+  window._onAuthReady=initPage;
 }
 </script>
 </body>
